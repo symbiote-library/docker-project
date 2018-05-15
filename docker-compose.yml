@@ -17,6 +17,12 @@ services:
     volumes:
       - '.:/var/www/html'
 
+  node:
+    image: "symbiote/node:6.14"
+    working_dir: /tmp
+    volumes:
+      - '.:/tmp'
+
   # Uses the same image as above, but executes as a separate container
   # to enable tty, and allow for SSH access which we will keep separate
   # from the web container. Will revisit this at some point as it's 
@@ -50,6 +56,29 @@ services:
         MYSQL_ROOT_PASSWORD: "password"
     # Fixes MySQL has gone away issues with small default packet size, also fixes BLOB/TEXT exceeding 10% of log size issue
     command: mysqld --max_allowed_packet=64M --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-log-file-size=512M
+
+
+  elastic:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:5.3.3"
+    ports: 
+      - "9200:9200"
+    environment:
+      - "http.host=0.0.0.0"
+      - "transport.host=127.0.0.1"
+      - "xpack.security.enabled=false"
+    volumes:
+      - ~/elastic-data:/usr/share/elasticsearch/data
+
+  solr: 
+    image: solr:5.5
+    ports:
+      - "8983:8983"
+    volumes:
+      - ~/solr-data:/opt/solr/mydata
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - project
 
   selenium:
     image: symbiote/selenium-chrome:2.53.1
