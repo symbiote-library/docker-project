@@ -38,7 +38,7 @@ services:
     volumes:
       - '.:/var/www/html'
       - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
-      - ~/composer-cache:/root/.composer/cache
+      - ~/docker/composer-cache:/usr/local/composer/cache
     command: ["/bin/bash"]
 
 
@@ -53,7 +53,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - "~/mysql-data:/var/lib/mysql"
+      - "~/docker/mysql-data:/var/lib/mysql"
     environment:
         MYSQL_ROOT_PASSWORD: "password"
     # Fixes MySQL has gone away issues with small default packet size, also fixes BLOB/TEXT exceeding 10% of log size issue
@@ -69,14 +69,14 @@ services:
       - "transport.host=127.0.0.1"
       - "xpack.security.enabled=false"
     volumes:
-      - ~/elastic-data:/usr/share/elasticsearch/data
+      - ~/docker/elastic-data:/usr/share/elasticsearch/data
 
   solr: 
     image: solr:5.5
     ports:
       - "8983:8983"
     volumes:
-      - ~/solr-data:/opt/solr/mydata
+      - ~/docker/solr-data:/opt/solr/mydata
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate
