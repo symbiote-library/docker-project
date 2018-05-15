@@ -1,0 +1,69 @@
+version: '2'
+services:
+  apache:
+    image: "symbiote/apache2:latest"
+    depends_on: 
+      - mysql56
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - php:php
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+  php:
+    image: "symbiote/php-fpm:7.1"
+    volumes:
+      - '.:/var/www/html'
+
+  # Uses the same image as above, but executes as a separate container
+  # to enable tty, and allow for SSH access which we will keep separate
+  # from the web container. Will revisit this at some point as it's 
+  # more efficient to use the same container for both
+  phpcli:
+    image: "symbiote/php-fpm:7.1"
+    tty: true
+    working_dir: /var/www/html
+    environment:
+      - SSH_AUTH_SOCK
+    volumes:
+      - '.:/var/www/html'
+      - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
+      - ~/composer-cache:/root/.composer/cache
+    command: ["/bin/bash"]
+
+
+  adminer: 
+    image: "adminer:4.6-standalone"
+    restart: always
+    ports:
+      - "8080:8080"
+
+  mysql56:
+    image: "mysql:5.6"
+    ports:
+      - "3306:3306"
+    volumes:
+      - "~/mysql-data:/var/lib/mysql"
+    environment:
+        MYSQL_ROOT_PASSWORD: "password"
+    # Fixes MySQL has gone away issues with small default packet size, also fixes BLOB/TEXT exceeding 10% of log size issue
+    command: mysqld --max_allowed_packet=64M --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-log-file-size=512M
+
+  selenium:
+    image: symbiote/selenium-chrome:2.53.1
+    depends_on:
+      - apache
+    environment: 
+      WEB_NAME: apache
+    ports:
+      - "4444:4444"
+    volumes:
+      - /dev/shm:/dev/shm
+
+  mailhog:
+    image: "mailhog/mailhog:v1.0.0"
+    ports:
+      - "1025:1025"
+      - "8025:8025"

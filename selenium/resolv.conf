@@ -1,0 +1,3 @@
+search localdomain
+nameserver 127.0.0.1
+options ndots:0
