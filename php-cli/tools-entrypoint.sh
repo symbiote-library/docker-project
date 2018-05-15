@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+echo "You can run phing or composer; docker run --rm --interactive --tty     --volume \$PWD:/app     --volume \$SSH_AUTH_SOCK:/ssh-auth.sock     --env SSH_AUTH_SOCK=/ssh-auth.sock symbiote/phpcli phing -v "
