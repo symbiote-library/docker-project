@@ -1,4 +1,4 @@
-FROM symbiote/php-fpm:5.6
+FROM symbiote/php-fpm:7.1
 
 RUN apt-get update && apt-get install -y \
     git
