@@ -18,10 +18,12 @@ services:
       - '.:/var/www/html'
 
   node:
-    image: "symbiote/node:6.14"
+    image: "symbiote/node:8.11"
+    tty: true
     working_dir: /tmp
     volumes:
       - '.:/tmp'
+    command: ["/bin/bash"]
 
   # Uses the same image as above, but executes as a separate container
   # to enable tty, and allow for SSH access which we will keep separate
