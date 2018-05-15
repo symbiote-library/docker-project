@@ -1,4 +1,4 @@
-FROM node:6.14
+FROM node:8.11
 
 RUN npm install -g grunt-cli \
     && npm install -g brunch \
