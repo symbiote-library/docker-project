@@ -29,3 +29,5 @@ RUN echo '[Date]\ndate.timezone = "Australia/Melbourne"' >> /usr/local/etc/php/c
 
 RUN echo "mailhub=mailhog:1025\nUseTLS=NO\nFromLineOverride=YES" > /etc/ssmtp/ssmtp.conf \
     && echo "sendmail_path = /usr/sbin/ssmtp -t" > /usr/local/etc/php/conf.d/sendmail.ini
+
+COPY php.ini /usr/local/etc/php/php.ini

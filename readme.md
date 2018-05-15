@@ -83,7 +83,6 @@ must know the name of the network; for most cases, this will be something like
 
 ## Handy commands
 
-
 ### MySQL
 
 From the docker examples;
@@ -98,7 +97,8 @@ you to execute SQL statements against your database instance:
 
 Or to just execute a command
 
-`docker run -it --network project_default --rm mysql mysql -hmysql56 -usome-mysql-user -p`
+`docker run -it --network project_default --rm mysql mysql -hmysql56 -uroot -p`
 
+Loading a database file
 
-
+`docker run -i --network project_default --rm mysql:5.6 mysql -hmysql56 -uroot -ppassword databasename < dbfile.sql`
