@@ -1,6 +1,6 @@
 # Symbiote Apache
 
-An apache2 image with backed in SSL certificates
+An apache2 image with baked in SSL certificates
 
 Has vhosts to capture all requests to *.symlocal domains for both 
 http and https. 
