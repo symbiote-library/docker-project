@@ -83,6 +83,18 @@ must know the name of the network; for most cases, this will be something like
 
 ## Handy commands
 
+### PHP commands
+
+``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 phing``
+
+``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 composer update {package_name}``
+
+### Running codeception
+
+Assuming your project has codeception tests defined
+
+``docker exec -it -u `id -u`:`id -g` project_phpcli_1 vendor/bin/codecept run -c module-folder/codeception/codeception.yml``
+
 ### MySQL
 
 From the docker examples;
