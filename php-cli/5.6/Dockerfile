@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y \
     git
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_HOME /tmp
+ENV COMPOSER_HOME "/usr/local/composer" 
 ENV COMPOSER_VERSION 1.6.5
 ENV PATH "${COMPOSER_HOME}/vendor/bin:${PATH}"
 
@@ -21,10 +21,6 @@ RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/compos
  && composer --ansi --version --no-interaction \
  && rm -rf /tmp/* /tmp/.htaccess
 
-
-ENV COMPOSER_HOME "/usr/local/composer" 
-ENV PATH "${COMPOSER_HOME}/vendor/bin:${PATH}"
-
-RUN composer global require phing/phing
+RUN composer global require phing/phing && chown -R www-data ${COMPOSER_HOME}
 
 CMD ["/bin/bash"]
