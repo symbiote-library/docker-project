@@ -18,6 +18,8 @@ services:
     volumes:
       - '.:/var/www/html'
       - ~/docker/logs:/var/log/silverstripe
+    # Uncomment this to enable xdebug
+    # command: bash -c "docker-php-ext-enable xdebug && php-fpm"
 
   node:
     image: "symbiote/node:8.11"

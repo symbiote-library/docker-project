@@ -23,6 +23,7 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
       intl \
       zip \
     && pecl install redis-4.0.2 \
+    && pecl install xdebug-2.5.5 \
     && docker-php-ext-enable \
       redis 
 
@@ -35,6 +36,5 @@ RUN echo '[Date]\ndate.timezone = "Australia/Melbourne"' >> /usr/local/etc/php/c
     && mkdir -p /var/log/php \
     && chown www-data /var/log/php 
 
-
 COPY php.ini /usr/local/etc/php/php.ini
-
+COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
