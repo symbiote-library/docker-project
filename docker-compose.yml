@@ -17,6 +17,7 @@ services:
     image: "symbiote/php-fpm:7.1"
     volumes:
       - '.:/var/www/html'
+      - ~/docker/logs:/var/log/silverstripe
 
   node:
     image: "symbiote/node:8.11"
@@ -39,8 +40,9 @@ services:
     volumes:
       - '.:/var/www/html'
       - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
-      - ~/docker/composer-cache:/usr/local/composer
+      - ~/docker/composer-cache:/usr/local/composer/cache
       - ~/docker/logs:/var/log/php
+      - ~/docker/logs:/var/log/silverstripe
     command: ["/bin/bash"]
 
 
@@ -60,6 +62,12 @@ services:
     # Fixes MySQL has gone away issues with small default packet size, also fixes BLOB/TEXT exceeding 10% of log size issue
     command: mysqld --max_allowed_packet=64M --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-log-file-size=512M
 
+  redis:
+    image: "redis:3.2-alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - ~/docker/redis-data:/data
 
   elastic:
     image: "docker.elastic.co/elasticsearch/elasticsearch:5.3.3"
