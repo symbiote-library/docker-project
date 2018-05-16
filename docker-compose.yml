@@ -12,6 +12,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
+      - ~/docker/logs:/var/log/apache2
   php:
     image: "symbiote/php-fpm:7.1"
     volumes:
@@ -30,7 +31,7 @@ services:
   # from the web container. Will revisit this at some point as it's 
   # more efficient to use the same container for both
   phpcli:
-    image: "symbiote/php-fpm:7.1"
+    image: "symbiote/php-cli:7.1"
     tty: true
     working_dir: /var/www/html
     environment:
@@ -38,13 +39,13 @@ services:
     volumes:
       - '.:/var/www/html'
       - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
-      - ~/docker/composer-cache:/usr/local/composer/cache
+      - ~/docker/composer-cache:/usr/local/composer
+      - ~/docker/logs:/var/log/php
     command: ["/bin/bash"]
 
 
   adminer: 
     image: "adminer:4.6-standalone"
-    restart: always
     ports:
       - "8080:8080"
 
