@@ -89,6 +89,35 @@ must know the name of the network; for most cases, this will be something like
 
 ``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 composer update {package_name}``
 
+### XDebug
+
+Enabling xdebug needs to be done as part of the relevant PHP containers' 
+startup commands. The default php images are configured with some modules 
+disabled as per production requirements. These can be enabled as part of the
+docker-compose used locally in the project
+
+```
+  php:
+    image: "symbiote/php-fpm:7.1"
+    volumes:
+      - '.:/var/www/html'
+      - ~/docker/logs:/var/log/silverstripe
+    command: bash -c "docker-php-ext-enable xdebug && php-fpm"
+```
+
+### Yarn commands
+
+``docker exec -it -u `id -u`:`id -g` {project}_node_1 bash -c "cd themes/site-theme && yarn install && yarn start"``
+
+Optionally, you can set up your docker-compose with a command like the following
+
+```
+services:
+  node: 
+    etc: as_per_default_config
+    command: bash -c "cd themes/site-theme && yarn install && yarn start"
+```
+
 ### Running codeception
 
 Assuming your project has codeception tests defined

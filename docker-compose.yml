@@ -17,6 +17,7 @@ services:
     image: "symbiote/php-fpm:7.1"
     volumes:
       - '.:/var/www/html'
+      - ~/docker/logs:/var/log/php
       - ~/docker/logs:/var/log/silverstripe
     # Uncomment this to enable xdebug
     # command: bash -c "docker-php-ext-enable xdebug && php-fpm"
