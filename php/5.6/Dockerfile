@@ -27,6 +27,16 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
     && docker-php-ext-enable \
       redis 
 
+RUN echo "deb http://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages debian main" > /etc/apt/sources.list.d/tideways.list \
+  && curl --silent -o- https://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages/EEB5E8F4.gpg | apt-key add - \
+  && apt-get update  \
+  && apt-get install -y \
+    tideways-daemon \
+    tideways-php \
+    tideways-cli \
+  && rm -rf /var/lib/apt/lists/* \
+  && cp /usr/lib/tideways/tideways.ini /usr/local/etc/php/conf.d/
+
 ENV TZ=Australia/Melbourne
 
 RUN echo '[Date]\ndate.timezone = "Australia/Melbourne"' >> /usr/local/etc/php/conf.d/timezone.ini \
