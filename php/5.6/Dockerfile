@@ -2,7 +2,10 @@ FROM php:5.6-fpm
 
 RUN usermod -u 1000 www-data
 
-RUN apt-get update && apt-get install -y \
+
+RUN echo "deb http://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages debian main" > /etc/apt/sources.list.d/tideways.list \
+  && curl --silent -o- https://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages/EEB5E8F4.gpg | apt-key add - \
+  && apt-get update && apt-get install -y \
       libpng12-dev \
       libtidy-dev \
       libpng-dev \
@@ -10,7 +13,13 @@ RUN apt-get update && apt-get install -y \
       libfreetype6-dev \
       libmcrypt-dev \
       libicu-dev \
-      ssmtp
+      ssmtp \
+      tideways-daemon \
+      tideways-php \
+      tideways-cli \
+  && rm -rf /var/lib/apt/lists/* \
+  && cp /usr/lib/tideways/tideways.ini /usr/local/etc/php/conf.d/
+
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install \
       gd \
@@ -25,17 +34,7 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
     && pecl install redis-4.0.2 \
     && pecl install xdebug-2.5.5 \
     && docker-php-ext-enable \
-      redis 
-
-RUN echo "deb http://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages debian main" > /etc/apt/sources.list.d/tideways.list \
-  && curl --silent -o- https://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages/EEB5E8F4.gpg | apt-key add - \
-  && apt-get update  \
-  && apt-get install -y \
-    tideways-daemon \
-    tideways-php \
-    tideways-cli \
-  && rm -rf /var/lib/apt/lists/* \
-  && cp /usr/lib/tideways/tideways.ini /usr/local/etc/php/conf.d/
+      redis
 
 ENV TZ=Australia/Melbourne
 
