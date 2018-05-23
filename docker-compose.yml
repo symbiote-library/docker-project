@@ -15,6 +15,8 @@ services:
       - ~/docker/logs:/var/log/apache2
   php:
     image: "symbiote/php-fpm:7.1"
+    links:
+      - mysql56:mysql
     volumes:
       - '.:/var/www/html'
       - ~/docker/logs:/var/log/php
@@ -36,6 +38,8 @@ services:
   # more efficient to use the same container for both
   phpcli:
     image: "symbiote/php-cli:7.1"
+    links:
+      - mysql56:mysql
     tty: true
     working_dir: /var/www/html
     environment:
