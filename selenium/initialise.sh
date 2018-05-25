@@ -16,7 +16,7 @@ else
 	IP=127.0.0.11
 fi
 
-sed -i "s/webhostname/$IP/g" /etc/dnsmasq.conf
+sed -i -r 's/(symlocal)\/(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b'/symlocal\\/$IP/ /etc/dnsmasq.conf
 
 cp /tmp/resolv.conf /etc/resolv.conf
 
