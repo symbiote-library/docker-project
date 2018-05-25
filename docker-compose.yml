@@ -55,6 +55,8 @@ services:
 
   adminer: 
     image: "adminer:4.6-standalone"
+    links:
+      - mysql56:mysql
     ports:
       - "8080:8080"
 
