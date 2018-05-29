@@ -105,6 +105,25 @@ docker-compose used locally in the project
     command: bash -c "docker-php-ext-enable xdebug && php-fpm"
 ```
 
+Note you'll need to destroy the containers (`docker-compose down` should do, otherwise `docker ps -a` and `docker rm {id}`)
+
+If using vscode, remember you'll need to set a `pathMapping` option in launch.json
+
+```
+{
+    "pathMappings": 
+    { 
+      "/var/www/html": "${workspaceRoot}" 
+    }
+}
+```
+
+After starting the debugger in your IDE, you'll need to open your browser using a URL parameter as xdebug is _not_ configured for auto-run, eg
+
+`https://mysite.symlocal/?XDEBUG_SESSION_START=1`
+
+
+
 ### Yarn commands
 
 ``docker exec -it -u `id -u`:`id -g` {project}_node_1 bash -c "cd themes/site-theme && yarn install && yarn start"``
