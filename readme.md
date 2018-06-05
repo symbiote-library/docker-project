@@ -22,22 +22,32 @@ to the following
 
 ## Building
 
-Each sub-folder contains their own specific dockerfile definitions. 
+Each sub-folder contains their own specific dockerfile definitions.
 
 ## Running
 
-Simply copy this `docker-compose.yml` file into the root of your SilverStripe
-project folder. You may need to adjust for your specific needs around the 
-volume locations. 
+Copy 
+
+* docker-compose.yml
+* du.sh
+* dr.sh
+
+files into the root of your SilverStripe project folder. Adjust du.sh to your
+project specific service requirements. 
+
+To provide environment specific options, the following properties can be added
+to your `.env` file. Yes, this file overlaps with SilverStripe's `.env` file,
+but conveniently they both follow the same formatting rules
+
 
 Note that it will _not_ be necessary in every case to run _all_ the associated 
-services. You can create a startup script to only launch those services you 
+services. The du.sh script defines a list of _just_ the services you 
 decide are necessary
 
 ```
 #!/bin/sh
 
-docker-compose up apache php phpcli adminer mysql56 selenium mailhog
+docker-compose up -d apache php phpcli adminer mysql56 selenium mailhog
 ```
 
 
@@ -60,6 +70,36 @@ config to docker-compose, and change the image project-name accordingly
 
 ## Executing commands
 
+_In short_
+
+`./dr.sh {service} [cli]`
+
+Where {service} is one of
+
+* php
+* composer
+* phing
+* fpm
+* mysql
+* sel
+* yarn
+
+If the argument passed is "cli", you will be dropped to a bash shell
+inside the given container, eg
+
+`./dr.sh php cli` 
+
+will give you a bash shell inside the container. 
+
+Otherwise, the command will be executed as though it is the raw binary, eg
+
+`./dr.sh composer update package/name`
+
+will run the composer update command directly. 
+
+
+_A little more detail_
+
 Some commands can be run by executing containers in isolation, but as they're
 likely to touch on services defined in docker compose, you'll more often than
 not choose to execute them in context of a running docker-compose session. 
@@ -80,6 +120,8 @@ mounted volumes specified in docker-compose; the second allows you to
 execute in _any_ location by mounting the current directory. For the second you
 must know the name of the network; for most cases, this will be something like
 {project_dir_name}_default 
+
+ 
 
 ## Handy commands
 
