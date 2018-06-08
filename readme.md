@@ -3,6 +3,53 @@
 A collection of docker containers used by a single web project. Tailored
 to suit SilverStripe applications, but usable by other PHP apps. 
 
+
+## Running
+
+**1** 
+
+Copy 
+
+* docker-compose.yml
+* du.sh
+* dr.sh
+
+files into the root of your SilverStripe project folder. 
+
+**2**
+
+Run `./du.sh` to start with the initial set of containers; you can modify this
+launch file for your project config if you need a different set of services. 
+
+**3**
+
+To get into the containers, or run commands against the containers, the `./dr.sh`
+script is available. See below in **Executing commands** for specifics, but
+
+`./dr.sh php cli`
+
+will get you into the PHP cli for things you need to install. 
+
+
+**Other points**
+
+To provide environment specific options, the following properties can be added
+to your `.env` file. Yes, this file overlaps with SilverStripe's `.env` file,
+but conveniently they both follow the same formatting rules
+
+Note that it will _not_ be necessary in every case to run _all_ the associated 
+services. The du.sh script defines a list of _just_ the services you 
+decide are necessary for your project
+
+```
+#!/bin/sh
+
+docker-compose up -d apache php phpcli adminer mysql56 selenium mailhog
+```
+
+
+## Containers
+
 Contains Docker file definitions for
 
 * Apache2
@@ -24,31 +71,6 @@ to the following
 
 Each sub-folder contains their own specific dockerfile definitions.
 
-## Running
-
-Copy 
-
-* docker-compose.yml
-* du.sh
-* dr.sh
-
-files into the root of your SilverStripe project folder. Adjust du.sh to your
-project specific service requirements. 
-
-To provide environment specific options, the following properties can be added
-to your `.env` file. Yes, this file overlaps with SilverStripe's `.env` file,
-but conveniently they both follow the same formatting rules
-
-
-Note that it will _not_ be necessary in every case to run _all_ the associated 
-services. The du.sh script defines a list of _just_ the services you 
-decide are necessary
-
-```
-#!/bin/sh
-
-docker-compose up -d apache php phpcli adminer mysql56 selenium mailhog
-```
 
 ## Environment variables
 
