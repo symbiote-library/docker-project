@@ -50,6 +50,18 @@ decide are necessary
 docker-compose up -d apache php phpcli adminer mysql56 selenium mailhog
 ```
 
+## Environment variables
+
+Note: All environment variables are read AS DEFINED in .env, meaning you should
+_not_ include quotes
+
+The following environment variables are used by the docker-compose file
+
+* `PHP_FPM_EXTENSIONS` - Used to add extra commands to the php fpm startup, in
+  particular extensions. Note that you _must_ include a trailing `&&` or `;` eg `PHP_FPM_EXTENSIONS=docker-php-ext-enable xdebug &&`
+* `DOCKER_SHARED_PATH` - A file system path which is used for shared data 
+  between all containers. The `du.sh` script will default this to `~/docker.sh`
+  if you do _not_ have it set in your shell environment
 
 
 ## Customising 

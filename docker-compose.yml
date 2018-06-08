@@ -12,17 +12,17 @@ services:
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
-      - ~/docker/logs:/var/log/apache2
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/apache2
   php:
     image: "symbiote/php-fpm:7.1"
     links:
       - mysql56:mysql
     volumes:
       - '.:/var/www/html'
-      - ~/docker/logs:/var/log/php
-      - ~/docker/logs:/var/log/silverstripe
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/php
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/silverstripe
     # Uncomment this to enable xdebug
-    # command: bash -c "docker-php-ext-enable xdebug && php-fpm"
+    command: bash -c "${PHP_FPM_EXTENSIONS} php-fpm"
 
   node:
     image: "symbiote/node:8.11"
@@ -46,10 +46,10 @@ services:
       - SSH_AUTH_SOCK
     volumes:
       - '.:/var/www/html'
+      - ${DOCKER_SHARED_PATH}/composer-cache:/usr/local/composer/cache
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/php
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/silverstripe
       - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
-      - ~/docker/composer-cache:/usr/local/composer/cache
-      - ~/docker/logs:/var/log/php
-      - ~/docker/logs:/var/log/silverstripe
     command: ["/bin/bash"]
 
 
@@ -65,7 +65,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - "~/docker/mysql-data:/var/lib/mysql"
+      - "${DOCKER_SHARED_PATH}/mysql-data:/var/lib/mysql"
     environment:
         MYSQL_ROOT_PASSWORD: "password"
     # Fixes MySQL has gone away issues with small default packet size, also fixes BLOB/TEXT exceeding 10% of log size issue
@@ -76,7 +76,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ~/docker/redis-data:/data
+      - ${DOCKER_SHARED_PATH}/redis-data:/data
 
   elastic:
     image: "docker.elastic.co/elasticsearch/elasticsearch:5.3.3"
@@ -87,14 +87,14 @@ services:
       - "transport.host=127.0.0.1"
       - "xpack.security.enabled=false"
     volumes:
-      - ~/docker/elastic-data:/usr/share/elasticsearch/data
+      - ${DOCKER_SHARED_PATH}/elastic-data:/usr/share/elasticsearch/data
 
   solr: 
     image: solr:5.5
     ports:
       - "8983:8983"
     volumes:
-      - ~/docker/solr-data:/opt/solr/mydata
+      - ${DOCKER_SHARED_PATH}/solr-data:/opt/solr/mydata
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate

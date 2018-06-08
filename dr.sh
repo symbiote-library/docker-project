@@ -1,10 +1,11 @@
 #!/bin/sh
 
+CMD=$1
 CONTAINER="none"
 ACTION="pass"
 RUN_OPTS="-it"
 
-case "$1"
+case "$CMD"
 in
     php) 
         CONTAINER="phpcli"
@@ -25,6 +26,11 @@ in
     mysql) 
         CONTAINER="mysql56"
         ACTION="mysql"
+        ;;
+    mysqlimport)
+        CONTAINER="mysql56"
+        ACTION="mysql"
+        RUN_OPTS="-i"
         ;;
     sel) 
         CONTAINER="selenium"
@@ -47,11 +53,16 @@ if [ $CONTAINER = "none" ]; then
     exit 1;
 fi
 
+
 if [ $ACTION = "cli" ]; then
     echo "Dropping to shell in $CONTAINER"
     docker exec -it -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 /bin/bash
 else
     shift
-    echo "Running command $CONTAINER $ACTION $@"
-    docker exec -it -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 ${ACTION} "$@"
+    echo "Running command $ACTION in $CONTAINER"
+    if [ "mysqlimport" = $CMD ]; then
+        docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 ${ACTION} "$@" < /proc/$$/fd/0
+    else
+        docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 ${ACTION} "$@"
+    fi
 fi
