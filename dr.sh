@@ -35,6 +35,10 @@ in
     sel) 
         CONTAINER="selenium"
         ;;
+    node) 
+        CONTAINER="node"
+        ACTION="bash"
+        ;;
     yarn) 
         CONTAINER="node"
         ACTION="yarn"
@@ -62,6 +66,10 @@ else
     echo "Running command $ACTION in $CONTAINER"
     if [ "mysqlimport" = $CMD ]; then
         docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 ${ACTION} "$@" < /proc/$$/fd/0
+    elif [ "yarn" = $CMD ]; then
+	echo "Please update dr.sh and change the yarn-folder value"
+	exit 1;
+        # docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 bash -c "cd themes/yarn-folder; yarn $@"
     else
         docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 ${ACTION} "$@"
     fi
