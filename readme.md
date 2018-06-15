@@ -67,10 +67,6 @@ to the following
 * Adminer
 * Elastic Search
 
-## Building
-
-Each sub-folder contains their own specific dockerfile definitions.
-
 
 ## Environment variables
 
@@ -86,33 +82,18 @@ The following environment variables are used by the docker-compose file
   if you do _not_ have it set in your shell environment
 
 
-## Customising 
-
-For some projects, it will be necessary to add additional PHP dependencies; 
-you can define these by specifying a custom image from docker-compose
-
-Create a "docker" directory under your project. Add the following `build` 
-config to docker-compose, and change the image project-name accordingly
-
-```
-  php:
-    build: 
-      context: ./docker
-      dockerfile: Dockerfile.php
-    image: "symbiote/{project-name}-php-fpm:7.1"
-```
-
 ## Executing commands
 
 _In short_
 
-`./dr.sh {service} [cli]`
+`./dr.sh {command} [cli]`
 
 Where {service} is one of
 
 * php
 * composer
 * phing
+* codecept
 * fpm
 * mysql
 * sel
@@ -161,46 +142,19 @@ must know the name of the network; for most cases, this will be something like
 
 ### PHP commands
 
-``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 phing``
+`./dr.sh php [and-your-commands]`
 
-``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 composer update {package_name}``
-
-### XDebug
-
-Enabling xdebug needs to be done as part of the relevant PHP containers' 
-startup commands. The default php images are configured with some modules 
-disabled as per production requirements. These can be enabled as part of the
-docker-compose used locally in the project
-
-```
-  php:
-    image: "symbiote/php-fpm:7.1"
-    volumes:
-      - '.:/var/www/html'
-      - ~/docker/logs:/var/log/silverstripe
-    command: bash -c "docker-php-ext-enable xdebug && php-fpm"
-```
-
-Note you'll need to destroy the containers (`docker-compose down` should do, otherwise `docker ps -a` and `docker rm {id}`)
-
-If using vscode, remember you'll need to set a `pathMapping` option in launch.json
-
-```
-{
-    "pathMappings": 
-    { 
-      "/var/www/html": "${workspaceRoot}" 
-    }
-}
-```
-
-After starting the debugger in your IDE, you'll need to open your browser using a URL parameter as xdebug is _not_ configured for auto-run, eg
-
-`https://mysite.symlocal/?XDEBUG_SESSION_START=1`
-
+* `./dr.sh php -a` for an interactive prompt
+* ``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 phing``
+* ``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 composer update {package_name}``
 
 
 ### Yarn commands
+
+`./dr.sh yarn [other-arguments]``
+
+Note that the first time you run this in a project, you'll be prompted to update dr.sh with a directory containing
+the yarn package.json. 
 
 ``docker exec -it -u `id -u`:`id -g` {project}_node_1 bash -c "cd themes/site-theme && yarn install && yarn start"``
 
@@ -216,6 +170,10 @@ services:
 ### Running codeception
 
 Assuming your project has codeception tests defined
+
+`./dr.sh codecept [other-arguments]`
+
+Or manually,
 
 ``docker exec -it -u `id -u`:`id -g` project_phpcli_1 vendor/bin/codecept run -c module-folder/codeception/codeception.yml``
 
@@ -238,3 +196,65 @@ Or to just execute a command
 Loading a database file
 
 `docker run -i --network project_default --rm mysql:5.6 mysql -hmysql56 -uroot -ppassword databasename < dbfile.sql`
+
+
+## XDebug and other extensions
+
+Enabling xdebug needs to be done as part of the relevant PHP containers' 
+startup commands. The default php images are configured with some modules 
+disabled as per production requirements. These can be enabled as part of the
+docker-compose used locally in the project
+
+```
+  php:
+    image: "symbiote/php-fpm:7.1"
+    volumes:
+      - '.:/var/www/html'
+      - ~/docker/logs:/var/log/silverstripe
+    command: bash -c "docker-php-ext-enable xdebug && php-fpm"
+```
+
+The default `docker-compose.yml` file comes with this parameterised as `PHP_FPM_EXTENSIONS`, 
+and can be set in your `.env` file. 
+
+Note you'll need to destroy the containers (`docker-compose down` should do, otherwise `docker ps -a` and `docker rm {id}`)
+
+If using vscode, remember you'll need to set a `pathMapping` option in launch.json
+
+```
+{
+    "pathMappings": 
+    { 
+      "/var/www/html": "${workspaceRoot}" 
+    }
+}
+```
+
+After starting the debugger in your IDE, you'll need to open your browser using a URL parameter as xdebug is _not_ configured for auto-run, eg
+
+`https://mysite.symlocal/?XDEBUG_SESSION_START=1`
+
+
+
+## Building the images
+
+Each sub-folder contains their own specific dockerfile definitions.
+
+Built images can then be pushed to docker-hub; please speak to marcus@symbiote.com.au before doing so!
+
+
+## Customising images on a per-project basis
+
+For some projects, it will be necessary to add additional PHP dependencies; 
+you can define these by specifying a custom image from docker-compose
+
+Create a "docker" directory under your project. Add the following `build` 
+config to docker-compose, and change the image project-name accordingly
+
+```
+  php:
+    build: 
+      context: ./docker
+      dockerfile: Dockerfile.php
+    image: "symbiote/{project-name}-php-fpm:7.1"
+```
