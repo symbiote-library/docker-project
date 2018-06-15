@@ -4,6 +4,7 @@ CMD=$1
 CONTAINER="none"
 ACTION="pass"
 RUN_OPTS="-it"
+YARN_DIR=EDIT_THIS_PLEASE
 
 case "$CMD"
 in
@@ -71,9 +72,12 @@ else
     if [ "mysqlimport" = $CMD ]; then
         docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 ${ACTION} "$@" < /proc/$$/fd/0
     elif [ "yarn" = $CMD ]; then
-	echo "Please update dr.sh and change the yarn-folder value"
-	exit 1;
-        # docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 bash -c "cd themes/yarn-folder; yarn $@"
+        if [ "EDIT_THIS_PLEASE" = $YARN_DIR ] then
+            echo "Please update dr.sh and change the YARN_DIR value"
+            exit 1;
+        else 
+            docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 bash -c "cd $YARN_DIR; yarn $@"
+        fi
     else
         docker exec ${RUN_OPTS} -u `id -u`:`id -g` $(basename $(pwd))_${CONTAINER}_1 ${ACTION} "$@"
     fi
