@@ -19,6 +19,10 @@ in
         CONTAINER="phpcli"
         ACTION="phing"
         ;;
+    codecept) 
+        CONTAINER="phpcli"
+        ACTION="vendor/bin/codecept"
+        ;;
     fpm) 
         CONTAINER="php"
         ACTION="bash"
