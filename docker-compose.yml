@@ -55,6 +55,11 @@ services:
 
   adminer: 
     image: "adminer:4.6-standalone"
+    environment:
+      ADMINER_DESIGN: nette
+      ADMINER_DEFAULT_SERVER: mysql
+    depends_on:
+      - mysql56
     links:
       - mysql56:mysql
     ports:
