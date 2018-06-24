@@ -53,6 +53,22 @@ services:
     command: ["/bin/bash"]
 
 
+  queuedjobs:
+    image: "symbiote/php-cli:7.1"
+    links: 
+      - mysql56:mysql
+    tty: false
+    working_dir: /var/www/html
+    volumes:
+      - '.:/var/www/html'
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/php
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/silverstripe
+    command: [
+      "/bin/bash",
+      "-c",
+      "while :; do php /var/www/html/framework/cli-script.php dev/tasks/ProcessJobQueueTask queue=2 >> /var/log/php/queuedjob.log; php /var/www/html/framework/cli-script.php dev/tasks/ProcessJobQueueTask queue=3 >> /var/log/php/queuedjob.log; sleep 30; done"  
+    ]
+  
   adminer: 
     image: "adminer:4.6-standalone"
     environment:
