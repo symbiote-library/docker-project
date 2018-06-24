@@ -50,22 +50,23 @@ docker-compose up -d apache php phpcli adminer mysql56 selenium mailhog
 
 ## Containers
 
-Contains Docker file definitions for
+The following can be included as needed in the `./du.sh` script. 
 
-* Apache2
-* PHP FPM 
-* Selenium
+* apache - apache 2 connecting to FPM 
+* phpfpm - PHP 7.1 and 5.6, http(s)://localhost
+* phpcli - PHP 7.1 and 5.6
+* node - 8.11 and 6.14 available with yarn, grunt-cli, brunch and bower
+* queuedjobs - Based on phpcli, runs with SilverStripe's queuedjobs
+* adminer - web based interface for mysql, http://localhost:8080
+* mysql56 - Aliased as mysql, a mysql 5.6 instance
+* redis - redis 3.2, available on redis:6379  from other containers
+* elastic - elastic search 5.3 (AWS compatible) available via 
+  http://localhost:9200 and elastic:9200 from other containers
+* solr - A solr 5.5 instance - TODO adding custom solr.xml and creating new
+  cores
+* selenium - remaps requests to symlocal back to the webserver container
+* mailhog - mail capture, web interface available on http://localhost:8025
 
-Apache2 is built from a base ubuntu 16.04, rather than library/httpd. This
-maintains consistency with Symbiote's standard environment configuration. 
-
-The recommended docker-compose structure uses the above, as well as references 
-to the following 
-
-* MySQL 
-* mailhog
-* Adminer
-* Elastic Search
 
 
 ## Environment variables
@@ -179,6 +180,19 @@ Or manually,
 
 ### MySQL
 
+
+**Connect into the mysql client**
+
+
+`./dr.sh mysql [connection-parameters]`
+
+
+**Import a database file**
+
+`./dr.sh mysqlimport [connection-parameters] databasename < inputfile-on-host.sql`
+
+
+
 From the docker examples;
 
 The following command starts another mysql container instance and runs the 
@@ -238,9 +252,31 @@ After starting the debugger in your IDE, you'll need to open your browser using 
 
 ## Building the images
 
+
+Contains Docker file definitions for
+
+* Apache2
+* PHP FPM 
+* Selenium
+* Node (in particular, yarn toolset)
+
+Apache2 is built from a base ubuntu 16.04, rather than library/httpd. This
+maintains consistency with Symbiote's standard environment configuration. 
+
+
 Each sub-folder contains their own specific dockerfile definitions.
 
 Built images can then be pushed to docker-hub; please speak to marcus@symbiote.com.au before doing so!
+
+
+The recommended docker-compose structure uses the above, as well as references 
+to the following from upstream docker repositories
+
+* MySQL 
+* mailhog
+* Adminer
+* Elastic Search
+
 
 
 ## Customising images on a per-project basis
