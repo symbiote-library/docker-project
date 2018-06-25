@@ -13,6 +13,8 @@ RUN echo "deb http://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages debian m
       libfreetype6-dev \
       libmcrypt-dev \
       libicu-dev \
+      libxslt1-dev \
+      libxslt1.1 \
       ssmtp \
       tideways-daemon \
       tideways-php \
@@ -28,6 +30,7 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
       mbstring \
       mcrypt \
       opcache \
+      xsl \
       pdo_mysql \
       intl \
       zip \
