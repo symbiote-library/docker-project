@@ -52,6 +52,20 @@ services:
       - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
     command: ["/bin/bash"]
 
+  sqsrunner:
+    image: "symbiote/php-cli:7.1"
+    links: 
+      - mysql56:mysql
+    tty: false
+    working_dir: /var/www/html
+    volumes:
+      - '.:/var/www/html'
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/php
+      - ${DOCKER_SHARED_PATH}/logs:/var/log/silverstripe
+    command: [
+      "php",
+      "sqs-jobqueue/central-runner.php",
+    ]
 
   queuedjobs:
     image: "symbiote/php-cli:7.1"

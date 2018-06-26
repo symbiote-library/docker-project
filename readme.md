@@ -57,6 +57,7 @@ The following can be included as needed in the `./du.sh` script.
 * phpcli - PHP 7.1 and 5.6
 * node - 8.11 and 6.14 available with yarn, grunt-cli, brunch and bower
 * queuedjobs - Based on phpcli, runs with SilverStripe's queuedjobs
+* sqsrunner - A file-based queue executor, for testing with the Sqs module
 * adminer - web based interface for mysql, http://localhost:8080
 * mysql56 - Aliased as mysql, a mysql 5.6 instance
 * redis - redis 3.2, available on redis:6379  from other containers
