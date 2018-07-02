@@ -6,6 +6,7 @@ RUN usermod -u 1000 www-data
 RUN echo "deb http://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages debian main" > /etc/apt/sources.list.d/tideways.list \
   && curl --silent -o- https://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages/EEB5E8F4.gpg | apt-key add - \
   && apt-get update && apt-get install -y \
+      mysql-client \
       libpng12-dev \
       libtidy-dev \
       libpng-dev \
