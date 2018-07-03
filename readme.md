@@ -151,6 +151,12 @@ must know the name of the network; for most cases, this will be something like
 * ``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 composer update {package_name}``
 
 
+### SSPak
+
+The PHP CLI container bundles the `sspak` utility for packing and unpacking 
+SilverStripe CMS sites. 
+
+
 ### Yarn commands
 
 `./dr.sh yarn [other-arguments]``

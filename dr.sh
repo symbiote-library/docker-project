@@ -17,6 +17,10 @@ in
         CONTAINER="phpcli"
         ACTION="composer"
         ;;
+    sspak)
+        CONTAINER="phpcli"
+        ACTION="sspak"
+        ;;
     phing)
         CONTAINER="phpcli"
         ACTION="phing"
