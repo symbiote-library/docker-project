@@ -23,4 +23,6 @@ RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/compos
 
 RUN composer global require phing/phing && chown -R www-data ${COMPOSER_HOME}
 
+COPY sspak.phar /usr/local/bin/sspak
+
 CMD ["/bin/bash"]
