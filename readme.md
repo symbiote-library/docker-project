@@ -52,6 +52,9 @@ docker-compose up -d apache php phpcli adminer mysql56 selenium mailhog
 
 The following can be included as needed in the `./du.sh` script. 
 
+Note for those containers below that have different versions, simply change the docker-compose file 
+to reference the older version where needed. 
+
 * apache - apache 2 connecting to FPM 
 * phpfpm - PHP 7.1 and 5.6, http(s)://localhost
 * phpcli - PHP 7.1 and 5.6
@@ -155,6 +158,26 @@ must know the name of the network; for most cases, this will be something like
 
 The PHP CLI container bundles the `sspak` utility for packing and unpacking 
 SilverStripe CMS sites. 
+
+
+### Node
+
+`./dr.sh node [arguments]`
+
+
+Executing node commands is again performed using `./dr.sh` - to drop to a command line with all node based tools,
+execute `./dr.sh node cli`
+
+The following binaries are available in the node environment
+
+* node
+* npm
+* yarn
+* brunch
+* gulp
+* grunt
+* cordova
+
 
 
 ### Yarn commands
