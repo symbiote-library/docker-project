@@ -91,31 +91,50 @@ The following environment variables are used by the docker-compose file
 
 _In short_
 
-`./dr.sh {command} [cli]`
+`./dr.sh [container] action [arguments]`
 
-Where {service} is one of
+Where **container** is one of
 
 * php
-* composer
-* phing
-* codecept
 * fpm
 * mysql
+* node
 * sel
-* yarn
 
-If the argument passed is "cli", you will be dropped to a bash shell
+If not specified, the container is automatically chosen based on the supplied action
+
+**action**
+
+* cli - drop into the container in a bash shell
+* exec - execute a command in that container (basically `docker exec`)
+* composer - runs composer in the php container
+* phing - runs phing in the php container
+* codecept - runs ./vendor/bin/codecept in the php container
+* mysqlimport - runs `mysql` with any piped in file sent through to the mysql container
+* yarn - runs yarn in the node container
+
+
+**arguments**
+
+Any extra arguments are passed through to the relevant container / execution statement. For example
+
+`./dr.sh composer update package/name`
+
+will run the `composer update package/name` command directly in the 
+php container. 
+
+If the action passed is "cli", you will be dropped to a bash shell
 inside the given container, eg
 
 `./dr.sh php cli` 
 
-will give you a bash shell inside the container. 
+will give you a bash shell inside that container, but no arguments are passed. 
 
-Otherwise, the command will be executed as though it is the raw binary, eg
+For the `exec` action, you can execute arbitrary executables inside the named container, eg
 
-`./dr.sh composer update package/name`
+`./dr.sh php exec "ls -l"` 
 
-will run the composer update command directly. 
+will output the `ls -l` result to screen. 
 
 
 _A little more detail_
