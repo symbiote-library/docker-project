@@ -208,6 +208,50 @@ Or manually,
 
 ``docker exec -it -u `id -u`:`id -g` project_phpcli_1 vendor/bin/codecept run -c module-folder/codeception/codeception.yml``
 
+### Running queuejobs for a SilverStripe project
+
+To use it, just add "queuedjobs" to the list of containers in `./du.sh`
+
+The base docker-compose file contains a container definition for running queuedjobs. In short, this creates an instance of the PHP CLI container, then runs a bash script that will execute the job queue task every 30 seconds for as long as the container exists. 
+
+```
+queuedjobs:
+    image: "symbiote/php-cli:5.6"
+    # other things left out for brevity ... 
+    command: [
+      "/bin/bash",
+      "-c",
+      "while :; do php /var/www/html/framework/cli-script.php dev/tasks/ProcessJobQueueTask queue=2 >> /var/log/php/queuedjob.log; php /var/www/html/framework/cli-script.php dev/tasks/ProcessJobQueueTask queue=3 >> /var/log/php/queuedjob.log; sleep 30; done"  
+    ]
+```
+
+### Running SQS tasks from a container for a SilverStripe project
+
+To use it, 
+
+* add "sqsrunner" to the list of containers in `./du.sh`
+* Make sure your project is configured to use the FileBasedSqsQueue for local development via yml config (see below)
+* Make sure your sqs module is at least version ?? - you can confirm by checking that the sqs-jobqueue/central-runner is set to look in `__DIR__ . '/fake-sqs-queues';` for jobs
+
+
+```
+---
+Name: sqs_location
+After: sqs-jobqueue
+---
+Injector:
+  FileBasedSqsQueue:
+    properties:
+      queuePath: /var/www/html/sqs-jobqueue/fake-queue
+  QueueHandler:
+    class: SqsQueueHandler
+    properties:
+      sqsService: %$SqsService
+  SqsService:
+    properties:
+      client: %$FileBasedSqsQueue
+```
+
 ### MySQL
 
 
