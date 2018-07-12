@@ -328,6 +328,30 @@ If using vscode, remember you'll need to set a `pathMapping` option in launch.js
 }
 ```
 
+or alternatively, user profile wide by changing user settings
+
+```
+{
+  "launch": {
+        // Use IntelliSense to learn about possible attributes.
+        // Hover to view descriptions of existing attributes.
+        // For more information, visit: https://go.microsoft.cmo/fwlink/?linkid=830387
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Listen for XDebug",
+                "type": "php",
+                "request": "launch",
+                "port": 9000,
+                "pathMappings": {
+                    "/var/www/html": "${workspaceRoot}"
+                }
+            }
+        ]
+    }
+}
+```
+
 After starting the debugger in your IDE, you'll need to open your browser using a URL parameter as xdebug is _not_ configured for auto-run, eg
 
 `https://mysite.symlocal/?XDEBUG_SESSION_START=1`
