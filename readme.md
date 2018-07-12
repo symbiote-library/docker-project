@@ -371,9 +371,11 @@ or alternatively, user profile wide by changing user settings
 }
 ```
 
-After starting the debugger in your IDE, you'll need to open your browser using a URL parameter as xdebug is _not_ configured for auto-run, eg
+Note that XDebug is configured to automatically start, so once enabled via docker compose, it _will_ attempt
+to connect back to your IDE. 
 
-`https://mysite.symlocal/?XDEBUG_SESSION_START=1`
+[//]: # (After starting the debugger in your IDE, you'll need to open your browser using a URL parameter as xdebug is _not_ configured for auto-run, eg)
+[//]: # (https://mysite.symlocal/?XDEBUG_SESSION_START=1)
 
 
 
