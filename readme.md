@@ -286,10 +286,10 @@ Loading a database file
 `docker run -i --network project_default --rm mysql:5.6 mysql -hmysql56 -uroot -ppassword databasename < dbfile.sql`
 
 
-## XDebug and other extensions
+## XDebug and other extensions or configuration
 
-Enabling xdebug needs to be done as part of the relevant PHP containers' 
-startup commands. The default php images are configured with some modules 
+Enabling extensions and specific PHP config needs to be done as part of the relevant 
+PHP containers' startup commands. The default php images are configured with some modules 
 disabled as per production requirements. These can be enabled as part of the
 docker-compose used locally in the project
 
@@ -303,9 +303,19 @@ docker-compose used locally in the project
 ```
 
 The default `docker-compose.yml` file comes with this parameterised as `PHP_FPM_EXTENSIONS`, 
-and can be set in your `.env` file. 
+and can be set in your `.env` file. This also allows for the specification of specific PHP 
+config options, for example to set `display_errors=On`
+
+```
+PHP_FPM_EXTENSIONS=docker-php-ext-enable xdebug && printf "display_errors=1" >> /usr/local/etc/php/php.ini &&
+```
 
 Note you'll need to destroy the containers (`docker-compose down` should do, otherwise `docker ps -a` and `docker rm {id}`)
+
+
+### XDebug configuration 
+
+The default XDebug configuration has remote autostart = 1. Note that _if_ you're planning to run a production image, ensure it is created after starting _without_ the debug enable options highlighted above, so that debugging is _not_ a thing that is startable by default on production. 
 
 If using vscode, remember you'll need to set a `pathMapping` option in launch.json
 
