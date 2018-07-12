@@ -55,10 +55,10 @@ The following can be included as needed in the `./du.sh` script.
 Note for those containers below that have different versions, simply change the docker-compose file 
 to reference the older version where needed. 
 
-* apache - apache 2 connecting to FPM 
-* phpfpm - PHP 7.1 and 5.6, http(s)://localhost
-* phpcli - PHP 7.1 and 5.6
-* node - 8.11 and 6.14 available with yarn, grunt-cli, brunch and bower
+* apache - apache 2 connecting to FPM  (**symbiote/apache2**)
+* phpfpm - PHP 7.1 and 5.6, http(s)://localhost (**symbiote/php-fpm:5.6** or **symbiote/php-fpm:7.1**)
+* phpcli - PHP 7.1 and 5.6 (**symbiote/php-cli:5.6** or **symbiote/php-cli:7.1**)
+* node - 8.11 and 6.14 available with yarn, grunt-cli, brunch and bower (**symbiote/node:6.14** or **symbiote/node:8.11**)
 * queuedjobs - Based on phpcli, runs with SilverStripe's queuedjobs
 * sqsrunner - A file-based queue executor, for testing with the Sqs module
 * adminer - web based interface for mysql, http://localhost:8080
