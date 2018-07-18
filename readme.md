@@ -18,10 +18,21 @@ files into the root of your SilverStripe project folder.
 
 **2**
 
+Open `dr.sh` in a text editor and update the following line to reference your theme folder.
+```sh
+YARN_DIR=EDIT_THIS_PLEASE
+```
+ie. You might change it to:
+```sh
+YARN_DIR="themes/simple"
+```
+
+**3**
+
 Run `./du.sh` to start with the initial set of containers; you can modify this
 launch file for your project config if you need a different set of services. 
 
-**3**
+**4**
 
 To get into the containers, or run commands against the containers, the `./dr.sh`
 script is available. See below in **Executing commands** for specifics, but
@@ -423,3 +434,4 @@ config to docker-compose, and change the image project-name accordingly
       dockerfile: Dockerfile.php
     image: "symbiote/{project-name}-php-fpm:7.1"
 ```
+
