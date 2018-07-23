@@ -281,9 +281,11 @@ Injector:
 
 
 **Import a database file**
+`./dr.sh mysqlimport -u [USERNAME] -p[YOUR_PASSWORD] [DATABASE_NAME] < inputfile-on-host.sql`
 
-`./dr.sh mysqlimport [connection-parameters] databasename < inputfile-on-host.sql`
-
+eg. 
+I copy a *.sql file into the root of my project folder, run the following command, and then delete the *.sql file.
+`./dr.sh mysqlimport -u root -ppassword project-name < backup.sql`
 
 
 From the docker examples;
