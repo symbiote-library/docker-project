@@ -125,16 +125,22 @@ services:
     volumes:
       - ${DOCKER_SHARED_PATH}/elastic-data:/usr/share/elasticsearch/data
 
+  # NOTE: This expects the solr module to have been downloaded _first_ 
+  # before you run this container! Otherwise you _will_ get permission
+  # issues
   solr: 
     image: solr:5.5
     ports:
       - "8983:8983"
     volumes:
-      - ${DOCKER_SHARED_PATH}/solr-data:/opt/solr/mydata
+      - ${DOCKER_SHARED_PATH}/solr-logs:/opt/solr/server/logs
+      - ${DOCKER_SHARED_PATH}/solr-data:/opt/solr/server/solr/mycores/
+      - ./solr/docker-configs/conf-5.5:/myconfig
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate
       - project
+      - /myconfig
 
   selenium:
     image: symbiote/selenium-chrome:2.53.1
