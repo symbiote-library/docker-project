@@ -425,3 +425,20 @@ config to docker-compose, and change the image project-name accordingly
       dockerfile: Dockerfile.php
     image: "symbiote/{project-name}-php-fpm:7.1"
 ```
+
+
+## Troubleshooting
+
+Before `docker-compose down`, make sure to run `docker logs my_container_number` 
+to get the most recent dump of data from the containers.
+
+**mysql**
+
+If using multiple versions of the mysql images, _please_ make sure to use a 
+different DOCKER_SHARED_FOLDER/mysql-data directory for each version to 
+avoid data corruption.  
+
+
+
+
+
