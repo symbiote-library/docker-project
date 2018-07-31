@@ -25,4 +25,15 @@ RUN composer global require phing/phing && chown -R www-data ${COMPOSER_HOME}
 
 COPY sspak.phar /usr/local/bin/sspak
 
+COPY memory.ini /usr/local/etc/php/conf.d/memory.ini
+
+RUN mkdir -p /var/www/.ssh && \
+    chmod 700 /var/www/.ssh && \
+    ssh-keyscan github.com >> /var/www/.ssh/known_hosts && \
+    ssh-keyscan bitbucket.org >> /var/www/.ssh/known_hosts && \
+    ssh-keyscan gitlab.com >> /var/www/.ssh/known_hosts  && \
+    ssh-keyscan gitlab.symbiote.com.au >> /var/www/.ssh/known_hosts  && \
+    chown -R 1000:1000 /var/www/.ssh && \
+    chmod 600 /var/www/.ssh/known_hosts
+
 CMD ["/bin/bash"]
