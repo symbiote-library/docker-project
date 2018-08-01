@@ -231,7 +231,9 @@ Or manually,
 
 To use it, just add "queuedjobs" to the list of containers in `./du.sh`
 
-The base docker-compose file contains a container definition for running queuedjobs. In short, this creates an instance of the PHP CLI container, then runs a bash script that will execute the job queue task every 30 seconds for as long as the container exists. 
+The base docker-compose file contains a container definition for running queuedjobs. In short, this creates an instance of the PHP CLI container, then runs a bash script that will execute the job queue task every 30 seconds for as long as the container exists.
+
+Note: the path to `cli-script.php` inside `docker-compose.yml` is configured for SS3, you will need to update the paths for SS4.
 
 ```
 queuedjobs:
