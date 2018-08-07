@@ -2,10 +2,13 @@ FROM selenium/standalone-chrome:2.53.1
 
 USER root
 
-RUN apt-get update  && apt-get install -y \
+RUN apt-get update && apt-get install -y \
 	inetutils-ping \
 	knot-dnsutils \
+    libosmesa6 \
+    libosmesa6-dev \
 	dnsmasq && \
+    ln -s /usr/lib/x86_64-linux-gnu/libOSMesa.so.6 /opt/google/chrome/libosmesa.so && \
 	rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 ADD dnsmasq.conf /etc/dnsmasq.conf
