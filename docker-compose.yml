@@ -14,7 +14,7 @@ services:
       - .:/var/www/html
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/apache2
   php:
-    image: "symbiote/php-fpm:${PHP_VERSION}"
+    image: "symbiote/php-fpm:${DOCKER_PHP_VERSION}"
     links:
       - mysql56:mysql
     volumes:
@@ -37,7 +37,7 @@ services:
   # from the web container. Will revisit this at some point as it's 
   # more efficient to use the same container for both
   phpcli:
-    image: "symbiote/php-cli:${PHP_VERSION}"
+    image: "symbiote/php-cli:${DOCKER_PHP_VERSION}"
     links:
       - mysql56:mysql
     tty: true
@@ -55,7 +55,7 @@ services:
     command: ["/bin/bash"]
 
   sqsrunner:
-    image: "symbiote/php-cli:${PHP_VERSION}"
+    image: "symbiote/php-cli:${DOCKER_PHP_VERSION}"
     links: 
       - mysql56:mysql
     tty: false
@@ -70,7 +70,7 @@ services:
     ]
 
   queuedjobs:
-    image: "symbiote/php-cli:${PHP_VERSION}"
+    image: "symbiote/php-cli:${DOCKER_PHP_VERSION}"
     links: 
       - mysql56:mysql
     tty: false
@@ -98,7 +98,7 @@ services:
       - "8080:8080"
 
   mysql56:
-    image: "mysql:${MYSQL_VERSION}"
+    image: "mysql:${DOCKER_MYSQL_VERSION}"
     ports:
       - "3306:3306"
     volumes:
