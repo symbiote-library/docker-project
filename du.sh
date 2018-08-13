@@ -2,7 +2,8 @@
 CONTAINERS="apache php phpcli adminer mysql56 selenium mailhog node"
 
 if [ -z "$DOCKER_SHARED_PATH" ]; then
-    DOCKER_SHARED_PATH=~/docker
+    DIR=$(basename "$PWD")
+    DOCKER_SHARED_PATH=~/docker/${DIR}
     echo "Setting default shared path to $DOCKER_SHARED_PATH "
 fi
 
