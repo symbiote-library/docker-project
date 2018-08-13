@@ -11,6 +11,16 @@ if [ -z "$DOCKER_PROJECT_PATH" ]; then
     echo "Setting default project data path to $DOCKER_PROJECT_PATH "
 fi
 
+if [ -z "$PHP_VERSION" ]; then
+    PHP_VERSION=7.1
+    echo "Setting default PHP version to $PHP_VERSION "
+fi
+
+if [ -z "$MYSQL_VERSION" ]; then
+    MYSQL_VERSION=5.6
+    echo "Setting default MySQL version to $MYSQL_VERSION "
+fi
+
 case "$CONTAINERS" in 
     *solr*)
         if [ -d ${DOCKER_PROJECT_PATH}/solr-data ]; then
@@ -25,6 +35,8 @@ esac
 
 export DOCKER_SHARED_PATH=$DOCKER_SHARED_PATH
 export DOCKER_PROJECT_PATH=$DOCKER_PROJECT_PATH
+export PHP_VERSION=$PHP_VERSION
+export MYSQL_VERSION=$MYSQL_VERSION
 
 echo "Creating services: ${CONTAINERS}"
 docker-compose up -d ${CONTAINERS}
