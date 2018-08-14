@@ -49,7 +49,7 @@ services:
       GIT_BRANCH: ${CI_COMMIT_REF_SLUG}
     volumes:
       - '.:/var/www/html'
-      - ${DOCKER_SHARED_PATH}/.composer-cache:/usr/local/composer/cache
+      - ${DOCKER_SHARED_PATH}/composer-cache:/usr/local/composer/cache
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/php
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/silverstripe
       - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
