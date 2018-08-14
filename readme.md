@@ -23,7 +23,7 @@ You can use the flags `-s` and `-k` to stop or kill all running containers prior
 ```
 #!/bin/sh
 
-docker-compose up -d apache php phpcli adminer mysql56 selenium mailhog
+docker-compose up -d apache php phpcli adminer mysql selenium mailhog
 ```
 
 #### Step 3
@@ -254,11 +254,11 @@ The following command starts another mysql container instance and runs the mysql
 
 Or to just execute a command:
 
-`docker run -it --network project_default --rm mysql mysql -hmysql56 -uroot -p`
+`docker run -it --network project_default --rm mysql mysql -hmysql -uroot -p`
 
 Loading a database file:
 
-`docker run -i --network project_default --rm mysql:5.6 mysql -hmysql56 -uroot -ppassword databasename < dbfile.sql`
+`docker run -i --network project_default --rm mysql:5.6 mysql -hmysql -uroot -ppassword databasename < dbfile.sql`
 
 #### XDebug and other extensions or configuration
 

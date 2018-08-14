@@ -34,11 +34,11 @@ in
         ACTION="bash"
         ;;
     mysql) 
-        CONTAINER="mysql56"
+        CONTAINER="mysql"
         ACTION="mysql"
         ;;
     mysqlimport)
-        CONTAINER="mysql56"
+        CONTAINER="mysql"
         ACTION="mysql"
         RUN_OPTS="-i"
         ;;

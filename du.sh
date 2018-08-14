@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #containers to run
-CONTAINERS="apache php phpcli adminer mysql56 selenium mailhog node"
+CONTAINERS="apache php phpcli adminer mysql selenium mailhog node"
 
 #get flags
 while getopts 'ks' flag; do

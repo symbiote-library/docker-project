@@ -3,7 +3,7 @@ services:
   apache:
     image: "symbiote/apache2:latest"
     depends_on: 
-      - mysql56
+      - mysql
     ports:
       - "80:80"
       - "443:443"
@@ -16,7 +16,7 @@ services:
   php:
     image: "symbiote/php-fpm:${DOCKER_PHP_VERSION}"
     links:
-      - mysql56:mysql
+      - mysql:mysql
     volumes:
       - '.:/var/www/html'
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/php
@@ -40,7 +40,7 @@ services:
   phpcli:
     image: "symbiote/php-cli:${DOCKER_PHP_VERSION}"
     links:
-      - mysql56:mysql
+      - mysql:mysql
     tty: true
     working_dir: /var/www/html
     environment:
@@ -58,7 +58,7 @@ services:
   sqsrunner:
     image: "symbiote/php-cli:${DOCKER_PHP_VERSION}"
     links: 
-      - mysql56:mysql
+      - mysql:mysql
     tty: false
     working_dir: /var/www/html
     volumes:
@@ -73,7 +73,7 @@ services:
   queuedjobs:
     image: "symbiote/php-cli:${DOCKER_PHP_VERSION}"
     links: 
-      - mysql56:mysql
+      - mysql:mysql
     tty: false
     working_dir: /var/www/html
     volumes:
@@ -92,13 +92,13 @@ services:
       ADMINER_DESIGN: nette
       ADMINER_DEFAULT_SERVER: mysql
     depends_on:
-      - mysql56
+      - mysql
     links:
-      - mysql56:mysql
+      - mysql:mysql
     ports:
       - "8080:8080"
 
-  mysql56:
+  mysql:
     image: "mysql:${DOCKER_MYSQL_VERSION}"
     ports:
       - "3306:3306"
