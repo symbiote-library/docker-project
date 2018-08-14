@@ -21,6 +21,12 @@ while getopts 'skr' flag; do
     esac
 done
 
+#loads env vars into this process
+ENV="./.env"
+if [ -e $ENV ]; then
+    . $ENV
+fi
+
 #set default for undefined vars
 if [ -z "$DOCKER_SHARED_PATH" ]; then
     DOCKER_SHARED_PATH=~/docker
