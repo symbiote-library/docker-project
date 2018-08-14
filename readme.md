@@ -1,45 +1,24 @@
 # Symbiote PHP project docker
 
-A collection of docker containers used by a single web project. Tailored
-to suit SilverStripe applications, but usable by other PHP apps. 
-
+A collection of docker containers used by a single web project. Tailored to suit SilverStripe applications, but usable by other PHP apps. 
 
 ## Running
 
-**1** 
+#### Step 1
 
-Copy 
+Copy these files into the root of your SilverStripe project folder:
 
 * docker-compose.yml
 * du.sh
 * dr.sh
 
-files into the root of your SilverStripe project folder. 
+#### Step 2
 
-**2**
+Run `./du.sh` to start with the initial set of containers; you can modify this launch file for your project config if you need a different set of services.
 
-Run `./du.sh` to start with the initial set of containers; you can modify this
-launch file for your project config if you need a different set of services. 
+Note that it will _not_ be necessary in every case to run _all_ the associated services. The du.sh script defines a list of _just_ the services you decide are necessary for your project
 
-**3**
-
-To get into the containers, or run commands against the containers, the `./dr.sh`
-script is available. See below in **Executing commands** for specifics, but
-
-`./dr.sh php cli`
-
-will get you into the PHP cli for things you need to install. 
-
-
-**Other points**
-
-To provide environment specific options, the following properties can be added
-to your `.env` file. Yes, this file overlaps with SilverStripe's `.env` file,
-but conveniently they both follow the same formatting rules
-
-Note that it will _not_ be necessary in every case to run _all_ the associated 
-services. The du.sh script defines a list of _just_ the services you 
-decide are necessary for your project
+You can use the flags `-s` and `-k` to stop or kill all running containers prior to the internal `docker-compose up`.
 
 ```
 #!/bin/sh
@@ -47,49 +26,49 @@ decide are necessary for your project
 docker-compose up -d apache php phpcli adminer mysql56 selenium mailhog
 ```
 
+#### Step 3
+
+To get into the containers, or run commands against the containers, the `./dr.sh` script is available. See below in **Executing commands** for specifics, but `./dr.sh php cli` will get you into the PHP cli for things you need to install.
 
 ## Containers
 
-The following can be included as needed in the `./du.sh` script. 
+The following can be included as needed in the `./du.sh` script.  
+
+* __apache__: apache 2 connecting to FPM  (*symbiote/apache2*).
+* __phpfpm__: PHP 7.1 and 5.6 (*symbiote/php-fpm:5.6* or *symbiote/php-fpm:7.1*).
+* __phpcli__: PHP 7.1 and 5.6 (*symbiote/php-cli:5.6* or *symbiote/php-cli:7.1*).
+* __node__: 8.11 and 6.14 available with yarn, grunt-cli, brunch and bower (*symbiote/node:6.14* or *symbiote/node:8.11*).
+* __queuedjobs__: Based on phpcli, runs with SilverStripe's queuedjobs.
+* __sqsrunner__: A file-based queue executor, for testing with the SQS module.
+* __adminer__: web based interface for mysql. Available on `localhost:8080`.
+* __mysql__: MySQL image (defaults to version 5.6).
+* __redis__: redis 3.2, available on `redis:6379` from other containers.
+* __elastic__: elastic search 5.3 (AWS compatible). Available on `localhost:9200` and `elastic:9200` from other containers.
+* __solr__: A solr 5.5 instance - TODO adding custom solr.xml and creating new cores.
+* __selenium__: remaps requests to symlocal back to the webserver container.
+* __mailhog__: mail capture, web interface. Available on `localhost:8025`.
 
 Note for those containers below that have different versions, simply change the docker-compose file 
-to reference the older version where needed. 
-
-* apache - apache 2 connecting to FPM  (**symbiote/apache2**)
-* phpfpm - PHP 7.1 and 5.6, http(s)://localhost (**symbiote/php-fpm:5.6** or **symbiote/php-fpm:7.1**)
-* phpcli - PHP 7.1 and 5.6 (**symbiote/php-cli:5.6** or **symbiote/php-cli:7.1**)
-* node - 8.11 and 6.14 available with yarn, grunt-cli, brunch and bower (**symbiote/node:6.14** or **symbiote/node:8.11**)
-* queuedjobs - Based on phpcli, runs with SilverStripe's queuedjobs
-* sqsrunner - A file-based queue executor, for testing with the Sqs module
-* adminer - web based interface for mysql, http://localhost:8080
-* mysql56 - Aliased as mysql, a mysql 5.6 instance
-* redis - redis 3.2, available on redis:6379  from other containers
-* elastic - elastic search 5.3 (AWS compatible) available via 
-  http://localhost:9200 and elastic:9200 from other containers
-* solr - A solr 5.5 instance - TODO adding custom solr.xml and creating new
-  cores
-* selenium - remaps requests to symlocal back to the webserver container
-* mailhog - mail capture, web interface available on http://localhost:8025
-
-
+to reference the older version where needed.
 
 ## Environment variables
 
-Note: All environment variables are read AS DEFINED in .env, meaning you should
-_not_ include quotes
+The following environment variables are used by the `docker-compose.yml` and can be overriden:
 
-The following environment variables are used by the docker-compose file
+* `DOCKER_SHARED_PATH` - Defines where shared data (such as the composer cache) is stored. Defaults to `~/docker`.
+* `DOCKER_PROJECT_PATH` - Defines where project specific data is stored. Defaults to `DOCKER_SHARED_PATH/(basename pwd)`. E.g. your 'web' project's data will be in `~/docker/web`.
+* `DOCKER_PHP_VERSION` - Defines the version of PHP your containers use. Defaults to `7.1`.
+* `DOCKER_MYSQL_VERSION` - Defines the MySQL version your containers use. Defaults to `5.6`.
+* `DOCKER_PHP_COMAND` - Used to add extra commands to the php fpm startup, in particular extensions. Defaults to `""`. Note that you _must_ include a trailing `&&`.
 
-* `PHP_FPM_EXTENSIONS` - Used to add extra commands to the php fpm startup, in
-  particular extensions. Note that you _must_ include a trailing `&&` or `;` eg `PHP_FPM_EXTENSIONS=docker-php-ext-enable xdebug &&`
-* `DOCKER_SHARED_PATH` - A file system path which is used for shared data 
-  between all containers. The `du.sh` script will default this to `~/docker.sh`
-  if you do _not_ have it set in your shell environment
+You can override these in a the root-level `.env` file. Yes, this file overlaps with SilverStripe's `.env` file,
+but conveniently they both follow the same formatting rules.
 
+Note: It is recommended that you wrap values in quotes.
 
 ## Executing commands
 
-_In short_
+ #### In short:
 
 `./dr.sh [container] action [arguments]`
 
@@ -103,91 +82,76 @@ Where **container** is one of
 
 If not specified, the container is automatically chosen based on the supplied action
 
-**action**
+#### Actions:
 
-* cli - drop into the container in a bash shell
-* exec - execute a command in that container (basically `docker exec`)
-* composer - runs composer in the php container
-* phing - runs phing in the php container
-* codecept - runs ./vendor/bin/codecept in the php container
-* mysqlimport - runs `mysql` with any piped in file sent through to the mysql container
-* yarn - runs yarn in the node container
+* cli - drop into the container in a bash shell.
+* exec - execute a command in that container (basically `docker exec`).
+* composer - runs composer in the php container.
+* phing - runs phing in the php container.
+* codecept - runs ./vendor/bin/codecept in the php container.
+* mysqlimport - runs `mysql` with any piped in file sent through to the mysql container.
+* yarn - runs yarn in the node container.
 
+See `dr.sh` for more details.
 
-**arguments**
+#### Arguments:
 
-Any extra arguments are passed through to the relevant container / execution statement. For example
+Any extra arguments are passed through to the relevant container / execution statement, e.g. 
 
 `./dr.sh composer update package/name`
 
-will run the `composer update package/name` command directly in the 
-php container. 
+will run the `composer update package/name` command directly in the php container. 
 
-If the action passed is "cli", you will be dropped to a bash shell
-inside the given container, eg
+If the action passed is "cli", you will be dropped to a bash shell inside the given container, e.g.
 
 `./dr.sh php cli` 
 
 will give you a bash shell inside that container, but no arguments are passed. 
 
-For the `exec` action, you can execute arbitrary executables inside the named container, eg
+For the `exec` action, you can execute arbitrary executables inside the named container, e.g.
 
 `./dr.sh php exec "ls -l"` 
 
 will output the `ls -l` result to screen. 
 
+#### A little more detail:
 
-_A little more detail_
+Some commands can be run by executing containers in isolation, but as they're likely to touch on services defined in docker compose, you'll more often than not choose to execute them in context of a running docker-compose session. 
 
-Some commands can be run by executing containers in isolation, but as they're
-likely to touch on services defined in docker compose, you'll more often than
-not choose to execute them in context of a running docker-compose session. 
-
-Eg
+E.g.
 
 * ``docker exec -it -u `id -u`:`id -g` project_phpcli_1 phing``
 
-Alternatively, you can execute a bare container by binding to the shared
-network
+Alternatively, you can execute a bare container by binding to the shared network.
 
-Eg
+E.g.
 
 * ``docker run --rm -it --network project_default -v $(pwd):/tmp -w /tmp -u `id -u`:`id -g` symbiote/php-cli:5.6 phing``
 
-Note that in the first example, the execution occurs in the context of the 
-mounted volumes specified in docker-compose; the second allows you to
-execute in _any_ location by mounting the current directory. For the second you
-must know the name of the network; for most cases, this will be something like
-{project_dir_name}_default 
-
- 
+Note that in the first example, the execution occurs in the context of the mounted volumes specified in docker-compose; the second allows you to execute in _any_ location by mounting the current directory. For the second you must know the name of the network; for most cases, this will be something like {project_dir_name}_default 
 
 ## Handy commands
 
-### PHP commands
+#### PHP commands
 
 `./dr.sh php [and-your-commands]`
 
-* `./dr.sh php -a` for an interactive prompt
-* ``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 phing``
-* ``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 composer update {package_name}``
+* `./dr.sh php -a` for an interactive prompt.
+* ``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 phing``.
+* ``docker exec -it -u `id -u`:`id -g` {project}_phpcli_1 composer update {package_name}``.
 
+#### SSPak
 
-### SSPak
+The PHP CLI container bundles the `sspak` utility for packing and unpacking SilverStripe CMS sites. 
 
-The PHP CLI container bundles the `sspak` utility for packing and unpacking 
-SilverStripe CMS sites. 
-
-
-### Node
+#### Node
 
 `./dr.sh node [arguments]`
-
 
 Executing node commands is again performed using `./dr.sh` - to drop to a command line with all node based tools,
 execute `./dr.sh node cli`
 
-The following binaries are available in the node environment
+The following binaries are available in the node environment:
 
 * node
 * npm
@@ -197,9 +161,7 @@ The following binaries are available in the node environment
 * grunt
 * cordova
 
-
-
-### Yarn commands
+#### Yarn commands
 
 `./dr.sh yarn [other-arguments]``
 
@@ -208,7 +170,7 @@ the yarn package.json.
 
 ``docker exec -it -u `id -u`:`id -g` {project}_node_1 bash -c "cd themes/site-theme && yarn install && yarn start"``
 
-Optionally, you can set up your docker-compose with a command like the following
+Optionally, you can set up your docker-compose with a command like the following:
 
 ```
 services:
@@ -217,19 +179,19 @@ services:
     command: bash -c "cd themes/site-theme && yarn install && yarn start"
 ```
 
-### Running codeception
+#### Running codeception
 
-Assuming your project has codeception tests defined
+Assuming your project has codeception tests defined:
 
 `./dr.sh codecept [other-arguments]`
 
-Or manually,
+Or manually:
 
 ``docker exec -it -u `id -u`:`id -g` project_phpcli_1 vendor/bin/codecept run -c module-folder/codeception/codeception.yml``
 
-### Running queuejobs for a SilverStripe project
+#### Running queuejobs for a SilverStripe project
 
-To use it, just add "queuedjobs" to the list of containers in `./du.sh`
+To use it, just add "queuedjobs" to the list of containers in `./du.sh`.
 
 The base docker-compose file contains a container definition for running queuedjobs. In short, this creates an instance of the PHP CLI container, then runs a bash script that will execute the job queue task every 30 seconds for as long as the container exists. 
 
@@ -244,14 +206,13 @@ queuedjobs:
     ]
 ```
 
-### Running SQS tasks from a container for a SilverStripe project
+#### Running SQS tasks from a container for a SilverStripe project
 
-To use it, 
+To use it: 
 
-* add "sqsrunner" to the list of containers in `./du.sh`
-* Make sure your project is configured to use the FileBasedSqsQueue for local development via yml config (see below)
-* Make sure your sqs module is at least version ?? - you can confirm by checking that the sqs-jobqueue/central-runner is set to look in `__DIR__ . '/fake-sqs-queues';` for jobs
-
+* add "sqsrunner" to the list of containers in `./du.sh`.
+* Make sure your project is configured to use the FileBasedSqsQueue for local development via yml config (see below).
+* Make sure your sqs module is at least version ?? - you can confirm by checking that the sqs-jobqueue/central-runner is set to look in `__DIR__ . '/fake-sqs-queues';` for jobs.
 
 ```
 ---
@@ -273,46 +234,35 @@ Injector:
 
 ### MySQL
 
-
-**Connect into the mysql client**
+#### Connect into the mysql client
 
 
 `./dr.sh mysql [connection-parameters]`
 
 
-**Import a database file**
+#### Import a database file
 `./dr.sh mysqlimport -u [USERNAME] -p[YOUR_PASSWORD] [DATABASE_NAME] < inputfile-on-host.sql`
 
-eg. 
-I copy a *.sql file into the root of my project folder, run the following command, and then delete the *.sql file.
-`./dr.sh mysqlimport -u root -ppassword project-name < backup.sql`
+E.g. I copy a *.sql file into the root of my project folder, run the following command, and then delete the *.sql file.
+`./dr.sh mysqlimport -u root -ppassword project-name < backup.sql`.
 
+From the docker examples:
 
-From the docker examples;
-
-The following command starts another mysql container instance and runs the 
-mysql command line client against your original mysql container, allowing 
-you to execute SQL statements against your database instance:
-
+The following command starts another mysql container instance and runs the mysql command line client against your original mysql container, allowing you to execute SQL statements against your database instance:
 
 `$ docker run -it --network project_default --rm mysql:5.6 sh -c 'exec mysql -h"$MYSQL_TCP_ADDR" -P"$MYSQL_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'`
 
-
-Or to just execute a command
+Or to just execute a command:
 
 `docker run -it --network project_default --rm mysql mysql -hmysql56 -uroot -p`
 
-Loading a database file
+Loading a database file:
 
 `docker run -i --network project_default --rm mysql:5.6 mysql -hmysql56 -uroot -ppassword databasename < dbfile.sql`
 
+#### XDebug and other extensions or configuration
 
-## XDebug and other extensions or configuration
-
-Enabling extensions and specific PHP config needs to be done as part of the relevant 
-PHP containers' startup commands. The default php images are configured with some modules 
-disabled as per production requirements. These can be enabled as part of the
-docker-compose used locally in the project
+Enabling extensions and specific PHP config needs to be done as part of the relevant PHP containers' startup commands. The default php images are configured with some modules disabled as per production requirements. These can be enabled as part of the docker-compose used locally in the project.
 
 ```
   php:
@@ -323,18 +273,15 @@ docker-compose used locally in the project
     command: bash -c "docker-php-ext-enable xdebug && php-fpm"
 ```
 
-The default `docker-compose.yml` file comes with this parameterised as `PHP_FPM_EXTENSIONS`, 
-and can be set in your `.env` file. This also allows for the specification of specific PHP 
-config options, for example to set `display_errors=On`
+The default `docker-compose.yml` file comes with this parameterised as `PHP_FPM_EXTENSIONS`, and can be set in your `.env` file. This also allows for the specification of specific PHP config options, for example to set `display_errors=On`.
 
 ```
 PHP_FPM_EXTENSIONS=docker-php-ext-enable xdebug && printf "display_errors=1" >> /usr/local/etc/php/php.ini &&
 ```
 
-Note you'll need to destroy the containers (`docker-compose down` should do, otherwise `docker ps -a` and `docker rm {id}`)
+Note: you'll need to destroy the containers (`docker-compose down` should do, otherwise `docker ps -a` and `docker rm {id}`).
 
-
-### XDebug configuration 
+#### XDebug configuration 
 
 The default XDebug configuration has remote autostart = 1. Note that _if_ you're planning to run a production image, ensure it is created after starting _without_ the debug enable options highlighted above, so that debugging is _not_ a thing that is startable by default on production. 
 
@@ -349,7 +296,7 @@ If using vscode, remember you'll need to set a `pathMapping` option in launch.js
 }
 ```
 
-or alternatively, user profile wide by changing user settings
+Or alternatively, user profile wide by changing user settings:
 
 ```
 {
@@ -379,10 +326,7 @@ to connect back to your IDE.
 [//]: # (After starting the debugger in your IDE, you'll need to open your browser using a URL parameter as xdebug is _not_ configured for auto-run, eg)
 [//]: # (https://mysite.symlocal/?XDEBUG_SESSION_START=1)
 
-
-
 ## Building the images
-
 
 Contains Docker file definitions for
 
@@ -391,32 +335,24 @@ Contains Docker file definitions for
 * Selenium
 * Node (in particular, yarn toolset)
 
-Apache2 is built from a base ubuntu 16.04, rather than library/httpd. This
-maintains consistency with Symbiote's standard environment configuration. 
-
+Apache2 is built from a base ubuntu 16.04, rather than library/httpd. This maintains consistency with Symbiote's standard environment configuration. 
 
 Each sub-folder contains their own specific dockerfile definitions.
 
 Built images can then be pushed to docker-hub; please speak to marcus@symbiote.com.au before doing so!
 
-
-The recommended docker-compose structure uses the above, as well as references 
-to the following from upstream docker repositories
+The recommended docker-compose structure uses the above, as well as references to the following from upstream docker repositories:
 
 * MySQL 
 * mailhog
 * Adminer
 * Elastic Search
 
-
-
 ## Customising images on a per-project basis
 
-For some projects, it will be necessary to add additional PHP dependencies; 
-you can define these by specifying a custom image from docker-compose
+For some projects, it will be necessary to add additional PHP dependencies; you can define these by specifying a custom image from docker-compose.
 
-Create a "docker" directory under your project. Add the following `build` 
-config to docker-compose, and change the image project-name accordingly
+Create a "docker" directory under your project. Add the following `build` config to docker-compose, and change the image project-name accordingly.
 
 ```
   php:
@@ -426,19 +362,6 @@ config to docker-compose, and change the image project-name accordingly
     image: "symbiote/{project-name}-php-fpm:7.1"
 ```
 
-
 ## Troubleshooting
 
-Before `docker-compose down`, make sure to run `docker logs my_container_number` 
-to get the most recent dump of data from the containers.
-
-**mysql**
-
-If using multiple versions of the mysql images, _please_ make sure to use a 
-different DOCKER_SHARED_FOLDER/mysql-data directory for each version to 
-avoid data corruption.  
-
-
-
-
-
+Before `docker-compose down`, make sure to run `docker logs my_container_number` to get the most recent dump of data from the containers.
