@@ -57,8 +57,9 @@ The following environment variables are used by the `docker-compose.yml` and can
 
 * `DOCKER_SHARED_PATH` - Defines where shared data (such as the composer cache) is stored. Defaults to `~/docker`.
 * `DOCKER_PROJECT_PATH` - Defines where project specific data is stored. Defaults to `DOCKER_SHARED_PATH/(basename pwd)`. E.g. your 'web' project's data will be in `~/docker/web`.
-* `DOCKER_PHP_VERSION` - Defines the version of PHP your containers use. Defaults to `7.1`.
-* `DOCKER_MYSQL_VERSION` - Defines the MySQL version your containers use. Defaults to `5.6`.
+* `DOCKER_PHP_VERSION` - Options are [5.6, 7.1] Defaults to `7.1`.
+* `DOCKER_NODE_VERSION` - Options are [6.14, 8.11] Defaults to `8.11`.
+* `DOCKER_MYSQL_VERSION` - Defaults to `5.6`.
 * `DOCKER_PHP_COMAND` - Used to add extra commands to the php fpm startup, in particular extensions. Defaults to `""`. Note that you _must_ include a trailing `&&`.
 
 You can override these in a the root-level `.env` file. Yes, this file overlaps with SilverStripe's `.env` file,

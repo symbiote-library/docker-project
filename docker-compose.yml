@@ -26,14 +26,14 @@ services:
     command: bash -c "${DOCKER_PHP_COMAND} php-fpm"
 
   node:
-    image: "symbiote/node:8.11"
+    image: "symbiote/node:${DOCKER_NODE_VERSION}"
     tty: true
     working_dir: /tmp
     volumes:
       - '.:/tmp'
     command: ["/bin/bash"]
 
-  # Uses the same image as above, but executes as a separate container
+  # Uses the same image as php, but executes as a separate container
   # to enable tty, and allow for SSH access which we will keep separate
   # from the web container. Will revisit this at some point as it's 
   # more efficient to use the same container for both
