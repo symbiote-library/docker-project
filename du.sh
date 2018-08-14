@@ -3,6 +3,25 @@
 #containers to run
 CONTAINERS="apache php phpcli adminer mysql56 selenium mailhog node"
 
+#get flags
+while getopts 'ks' flag; do
+    case "${flag}" in
+        k) KILL=1 ;;
+        s) STOP=1 ;;
+    esac
+done
+
+#handle flags
+if [ $STOP -eq 1 ]; then
+    echo "Stopping all containers:"
+    docker stop $(docker ps -aq)
+fi
+
+if [ $KILL -eq 1 ]; then
+    echo "Killing all containers:"
+    docker kill $(docker ps -aq)
+fi
+
 #set default for undefined vars
 if [ -z "$DOCKER_SHARED_PATH" ]; then
     DOCKER_SHARED_PATH=~/docker
