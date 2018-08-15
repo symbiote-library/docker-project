@@ -1,8 +1,5 @@
 #!/bin/sh
 
-#containers to run
-CONTAINERS="apache php phpcli adminer mysql selenium mailhog node"
-
 #handle cmd flags
 while getopts 'skr' flag; do
     case "${flag}" in
@@ -28,6 +25,11 @@ if [ -e $ENV ]; then
 fi
 
 #set default for undefined vars
+if [ -z "$DOCKER_CONTAINERS" ]; then
+    DOCKER_CONTAINERS="apache php phpcli adminer mysql node"
+    echo "Setting DOCKER_CONTAINERS to $DOCKER_CONTAINERS"
+fi
+
 if [ -z "$DOCKER_SHARED_PATH" ]; then
     DOCKER_SHARED_PATH=~/docker
     echo "Setting DOCKER_SHARED_PATH to $DOCKER_SHARED_PATH"
