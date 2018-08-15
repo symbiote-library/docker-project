@@ -77,5 +77,10 @@ export DOCKER_NODE_VERSION="$DOCKER_NODE_VERSION"
 export DOCKER_PHP_COMAND="$DOCKER_PHP_COMAND"
 
 #run containers
-echo "Creating services: ${CONTAINERS}"
-docker-compose up -d ${CONTAINERS}
+if [ -z "$DOCKER_ATTACHED_MODE" ]; then
+    echo "Creating detached services: ${DOCKER_CONTAINERS}"
+    docker-compose up -d ${DOCKER_CONTAINERS}
+else
+    echo "Creating attached services: ${DOCKER_CONTAINERS}"
+    docker-compose up ${DOCKER_CONTAINERS}
+fi
