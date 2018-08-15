@@ -62,7 +62,7 @@ The following environment variables are used by the `docker-compose.yml` and can
 * `DOCKER_PHP_VERSION`: Options are [5.6, 7.1] Defaults to `7.1`.
 * `DOCKER_NODE_VERSION`: Options are [6.14, 8.11] Defaults to `8.11`.
 * `DOCKER_MYSQL_VERSION`: Defaults to `5.6`.
-* `DOCKER_PHP_COMAND`: Used to add extra commands to the php fpm startup, in particular extensions. Defaults to `""`. Note that you _must_ include a trailing `&&`.
+* `DOCKER_PHP_COMMAND`: Used to add extra commands to the php fpm startup, in particular extensions. Defaults to `""`. Note that you _must_ include a trailing `&&`.
 * `DOCKER_ATTACHED_MODE`: If defined (to any value), starts all containers in attached mode.
 
 You can override these in a the root-level `.env` file. Yes, this file overlaps with SilverStripe's `.env` file,

@@ -21,9 +21,9 @@ services:
       - '.:/var/www/html'
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/php
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/silverstripe
-    # Enable xdebug via the env var DOCKER_PHP_COMAND.
+    # Enable xdebug via the env var DOCKER_PHP_COMMAND.
     # Note: there needs to be an '&&' at the end.
-    command: bash -c "${DOCKER_PHP_COMAND} php-fpm"
+    command: bash -c "${DOCKER_PHP_COMMAND} php-fpm"
 
   node:
     image: "symbiote/node:${DOCKER_NODE_VERSION}"
