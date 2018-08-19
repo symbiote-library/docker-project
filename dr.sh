@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #loads docker env vars into this process
-DENV="./.denv"
+DENV="./docker.env"
 if [ -e $DENV ]; then
     . $DENV
 fi
