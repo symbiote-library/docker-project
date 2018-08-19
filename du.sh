@@ -1,9 +1,10 @@
 #!/bin/sh
 
 PULL="FALSE"
+CANCEL="FALSE"
 
 #handle cmd flags
-while getopts 'skrp' flag; do
+while getopts 'skrpc' flag; do
     case "${flag}" in
         s)
             echo "Stopping all containers:"
@@ -19,6 +20,9 @@ while getopts 'skrp' flag; do
             ;;
         p)
             PULL="TRUE"
+            ;;
+        c)
+            CANCEL="TRUE"
             ;;
     esac
 done
@@ -94,7 +98,9 @@ if [ "$PULL" = "TRUE" ]; then
 fi
 
 #run containers
-if [ -z "$DOCKER_ATTACHED_MODE" ]; then
+if [ "$CANCEL" = "TRUE" ]; then
+    echo "Cancel starting containers"
+elif [ -z "$DOCKER_ATTACHED_MODE" ]; then
     echo "Starting detached containers: ${DOCKER_CONTAINERS}"
     docker-compose up -d ${DOCKER_CONTAINERS}
 else
