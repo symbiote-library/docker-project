@@ -14,21 +14,45 @@ Copy these files into the root of your SilverStripe project folder:
 
 #### Step 2
 
-Run `./du.sh` to start with the initial set of containers; you can modify this launch file for your project config if you need a different set of services.
+Create a `docker.env` file in your project root and define the docker configuration.
 
-Note that it will _not_ be necessary in every case to run _all_ the associated services. The du.sh script defines a list of _just_ the services you decide are necessary for your project
-
-You can use the flags `-s` and `-k` to stop or kill all running containers prior to the internal `docker-compose up`.
-
+Example config:
 ```
-#!/bin/sh
-
-docker-compose up -d apache php phpcli adminer mysql selenium mailhog
+DOCKER_CONTAINERS="apache php phpcli adminer mysql node"
+DOCKER_PHP_VERSION="7.1"
+DOCKER_MYSQL_VERSION="5.6"
+DOCKER_NODE_VERSION="8.11"
+DOCKER_YARN_PATH="path/to/yarn/"
 ```
 
 #### Step 3
 
-To get into the containers, or run commands against the containers, the `./dr.sh` script is available. See below in **Executing commands** for specifics, but `./dr.sh php cli` will get you into the PHP cli for things you need to install.
+Run `./du.sh` to create/start the chosen set of containers. 
+
+There are several flags you can give to du.sh to perform additional functionality:
+
+- `-s` Stops all running containers before starting new containers.
+- `-k` Kills all running containers before starting new containers.
+- `-r` Removes all stopped containers before starting new containers.
+- `-p` Pulls down latest images for new containers before starting them.
+- `-c` Cancel starting containers (like doing 'ctrl+c' right before containers start).
+
+You can combine these flags and each flag will be executed in the given order.
+
+Common uses:
+- `./du.sh -s` when swapping projects (or `-k` when you don't care to retain container states).
+- `./du.sh -kr` when you want to reset the container environment (like after adding .env vars).
+- `./du.sh -p` when starting a project you haven't used in a while.
+- `./du.sh -pc` when you want to update a project's images, but not start the containers.
+
+#### Step 4
+
+To get into the containers, or run commands against the containers, the `./dr.sh` script is available. See below in **Executing commands** for specifics.
+
+Common uses:
+- `./dr.sh phing` to build your silverstripe project.
+- `./dr.sh yarn build` to run yarn build inside the node container.
+- `./dr.sh php cli` to bash into the phpcli container.
 
 ## Containers
 
@@ -55,20 +79,22 @@ to reference the older version where needed.
 
 The following environment variables are used by the `docker-compose.yml` and can be overriden:
 
+#### Project variables (defined in remote `docker.env` file)
 * `DOCKER_CONTAINERS`: List of containers to start when you run `du.sh`. Defaults to `apache php phpcli adminer mysql node`.
-* `DOCKER_SHARED_PATH`: Where shared data (such as the composer cache) is stored. Defaults to `~/docker`.
-* `DOCKER_PROJECT_PATH`: Where project specific data is stored. Defaults to `DOCKER_SHARED_PATH/(basename pwd)`.
-* `DOCKER_YARN_PATH`: Project relative path to yarn for running yarn commands via `dr.sh`.
 * `DOCKER_PHP_VERSION`: Options are [5.6, 7.1] Defaults to `7.1`.
-* `DOCKER_NODE_VERSION`: Options are [6.14, 8.11] Defaults to `8.11`.
 * `DOCKER_MYSQL_VERSION`: Defaults to `5.6`.
+* `DOCKER_NODE_VERSION`: Options are [6.14, 8.11] Defaults to `8.11`.
+* `DOCKER_YARN_PATH`: Project relative path to yarn for running yarn commands via `dr.sh`.
+
+#### User variables (defined in local `.env` file):
+* `DOCKER_SHARED_PATH`: Where shared data (such as the composer cache) is stored. Defaults to `~/docker`.
+* `DOCKER_PROJECT_PATH`: Where project specific data is stored. Defaults to `DOCKER_SHARED_PATH/(basename pwd)` (define pull path when overriding).
+* `DOCKER_ATTACHED_MODE`: If defined (any value), starts all containers in attached mode.
 * `DOCKER_PHP_COMMAND`: Used to add extra commands to the php fpm startup, in particular extensions. Defaults to `""`. Note that you _must_ include a trailing `&&`.
-* `DOCKER_ATTACHED_MODE`: If defined (to any value), starts all containers in attached mode.
 
-You can override these in a the root-level `.env` file. Yes, this file overlaps with SilverStripe's `.env` file,
-but conveniently they both follow the same formatting rules.
-
-Note: It is recommended that you wrap values in quotes.
+Notes:
+- You can use SilverStripe's `.env` file as they both follow the same formatting rules.
+- It is recommended that you wrap values in quotes.
 
 ## Executing commands
 
