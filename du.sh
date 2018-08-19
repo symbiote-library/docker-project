@@ -18,10 +18,16 @@ while getopts 'skr' flag; do
     esac
 done
 
-#loads env vars into this process
+#loads user env vars into this process
 ENV="./.env"
 if [ -e $ENV ]; then
     . $ENV
+fi
+
+#loads docker env vars into this process
+DENV="./.denv"
+if [ -e $DENV ]; then
+    . $DENV
 fi
 
 #set default for undefined vars
@@ -78,9 +84,9 @@ export DOCKER_PHP_COMMAND="$DOCKER_PHP_COMMAND"
 
 #run containers
 if [ -z "$DOCKER_ATTACHED_MODE" ]; then
-    echo "Creating detached services: ${DOCKER_CONTAINERS}"
+    echo "Starting detached containers: ${DOCKER_CONTAINERS}"
     docker-compose up -d ${DOCKER_CONTAINERS}
 else
-    echo "Creating attached services: ${DOCKER_CONTAINERS}"
+    echo "Starting attached containers: ${DOCKER_CONTAINERS}"
     docker-compose up ${DOCKER_CONTAINERS}
 fi
