@@ -8,7 +8,7 @@ fi
 
 #handle env vars
 if [ -z "$DOCKER_YARN_PATH" ]; then
-    DOCKER_YARN_PATH="NULL"
+    DOCKER_YARN_PATH=""
 fi
 
 CMD=$1
@@ -109,7 +109,7 @@ else
     if [ "mysqlimport" = $CMD ]; then
         docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} "$@" < /proc/$$/fd/0
     elif [ "yarn" = $CMD ]; then
-        if [ "$DOCKER_YARN_PATH" = "NULL" ]; then
+        if [ "$DOCKER_YARN_PATH" = "" ]; then
             echo "Please add the DOCKER_YARN_PATH env var"
             exit 1;
         else

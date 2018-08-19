@@ -1,7 +1,9 @@
 #!/bin/sh
 
+PULL="FALSE"
+
 #handle cmd flags
-while getopts 'skr' flag; do
+while getopts 'skrp' flag; do
     case "${flag}" in
         s)
             echo "Stopping all containers:"
@@ -14,6 +16,9 @@ while getopts 'skr' flag; do
         r)
             echo "Removing all containers:"
             docker rm $(docker ps -aq --filter "status=exited")
+            ;;
+        p)
+            PULL="TRUE"
             ;;
     esac
 done
@@ -32,33 +37,33 @@ fi
 
 #set default for undefined vars
 if [ -z "$DOCKER_CONTAINERS" ]; then
-    DOCKER_CONTAINERS="apache php phpcli adminer mysql node"
     echo "Setting DOCKER_CONTAINERS to $DOCKER_CONTAINERS"
+    DOCKER_CONTAINERS="apache php phpcli adminer mysql node"
 fi
 
 if [ -z "$DOCKER_SHARED_PATH" ]; then
-    DOCKER_SHARED_PATH=~/docker
     echo "Setting DOCKER_SHARED_PATH to $DOCKER_SHARED_PATH"
+    DOCKER_SHARED_PATH=~/docker
 fi
 
 if [ -z "$DOCKER_PROJECT_PATH" ]; then
-    DOCKER_PROJECT_PATH=${DOCKER_SHARED_PATH}/$(basename $(pwd))
     echo "Setting DOCKER_PROJECT_PATH to $DOCKER_PROJECT_PATH"
+    DOCKER_PROJECT_PATH=${DOCKER_SHARED_PATH}/$(basename $(pwd))
 fi
 
 if [ -z "$DOCKER_PHP_VERSION" ]; then
-    DOCKER_PHP_VERSION=7.1
     echo "Setting DOCKER_PHP_VERSION to $DOCKER_PHP_VERSION"
+    DOCKER_PHP_VERSION=7.1
 fi
 
 if [ -z "$DOCKER_MYSQL_VERSION" ]; then
-    DOCKER_MYSQL_VERSION=5.6
     echo "Setting DOCKER_MYSQL_VERSION to $DOCKER_MYSQL_VERSION"
+    DOCKER_MYSQL_VERSION=5.6
 fi
 
 if [ -z "$DOCKER_NODE_VERSION" ]; then
-    DOCKER_NODE_VERSION=8.11
     echo "Setting DOCKER_NODE_VERSION to $DOCKER_NODE_VERSION"
+    DOCKER_NODE_VERSION=8.11
 fi
 
 #handle solr dir/perms
@@ -81,6 +86,12 @@ export DOCKER_PHP_VERSION="$DOCKER_PHP_VERSION"
 export DOCKER_MYSQL_VERSION="$DOCKER_MYSQL_VERSION"
 export DOCKER_NODE_VERSION="$DOCKER_NODE_VERSION"
 export DOCKER_PHP_COMMAND="$DOCKER_PHP_COMMAND"
+
+#docker pull
+if [ "$PULL" = "TRUE" ]; then
+    echo "Pulling latest images:"
+    docker-compose pull ${DOCKER_CONTAINERS}
+fi
 
 #run containers
 if [ -z "$DOCKER_ATTACHED_MODE" ]; then
