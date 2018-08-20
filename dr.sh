@@ -1,11 +1,21 @@
 #!/bin/sh
 
+#loads docker env vars into this process
+DENV="./docker.env"
+if [ -e $DENV ]; then
+    . $DENV
+fi
+
+#handle env vars
+if [ -z "$DOCKER_YARN_PATH" ]; then
+    DOCKER_YARN_PATH=""
+fi
+
 CMD=$1
 CONTAINER="none"
 ACTION="pass"
 RUN_OPTS="-it"
 CONTAINER_PREFIX=$(basename $(pwd))
-YARN_DIR=EDIT_THIS_PLEASE
 
 case "$CMD"
 in
@@ -34,11 +44,11 @@ in
         ACTION="bash"
         ;;
     mysql) 
-        CONTAINER="mysql56"
+        CONTAINER="mysql"
         ACTION="mysql"
         ;;
     mysqlimport)
-        CONTAINER="mysql56"
+        CONTAINER="mysql"
         ACTION="mysql"
         RUN_OPTS="-i"
         ;;
@@ -99,11 +109,11 @@ else
     if [ "mysqlimport" = $CMD ]; then
         docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} "$@" < /proc/$$/fd/0
     elif [ "yarn" = $CMD ]; then
-        if [ "EDIT_THIS_PLEASE" = $YARN_DIR ]; then
-            echo "Please update dr.sh and change the YARN_DIR value"
+        if [ "$DOCKER_YARN_PATH" = "" ]; then
+            echo "Please add the DOCKER_YARN_PATH env var"
             exit 1;
         else
-            docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "cd $YARN_DIR; yarn $@"
+            docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $@"
         fi
     else
         docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} "$@"
