@@ -41,33 +41,33 @@ fi
 
 #set default for undefined vars
 if [ -z "$DOCKER_CONTAINERS" ]; then
-    echo "Setting DOCKER_CONTAINERS to $DOCKER_CONTAINERS"
     DOCKER_CONTAINERS="apache php phpcli adminer mysql node"
+    echo "Setting DOCKER_CONTAINERS to $DOCKER_CONTAINERS"
 fi
 
 if [ -z "$DOCKER_SHARED_PATH" ]; then
-    echo "Setting DOCKER_SHARED_PATH to $DOCKER_SHARED_PATH"
     DOCKER_SHARED_PATH=~/docker
+    echo "Setting DOCKER_SHARED_PATH to $DOCKER_SHARED_PATH"
 fi
 
 if [ -z "$DOCKER_PROJECT_PATH" ]; then
-    echo "Setting DOCKER_PROJECT_PATH to $DOCKER_PROJECT_PATH"
     DOCKER_PROJECT_PATH=${DOCKER_SHARED_PATH}/$(basename $(pwd))
+    echo "Setting DOCKER_PROJECT_PATH to $DOCKER_PROJECT_PATH"
 fi
 
 if [ -z "$DOCKER_PHP_VERSION" ]; then
-    echo "Setting DOCKER_PHP_VERSION to $DOCKER_PHP_VERSION"
     DOCKER_PHP_VERSION=7.1
+    echo "Setting DOCKER_PHP_VERSION to $DOCKER_PHP_VERSION"
 fi
 
 if [ -z "$DOCKER_MYSQL_VERSION" ]; then
-    echo "Setting DOCKER_MYSQL_VERSION to $DOCKER_MYSQL_VERSION"
     DOCKER_MYSQL_VERSION=5.6
+    echo "Setting DOCKER_MYSQL_VERSION to $DOCKER_MYSQL_VERSION"
 fi
 
 if [ -z "$DOCKER_NODE_VERSION" ]; then
-    echo "Setting DOCKER_NODE_VERSION to $DOCKER_NODE_VERSION"
     DOCKER_NODE_VERSION=8.11
+    echo "Setting DOCKER_NODE_VERSION to $DOCKER_NODE_VERSION"
 fi
 
 #handle solr dir/perms
@@ -101,9 +101,9 @@ fi
 if [ "$CANCEL" = "TRUE" ]; then
     echo "Cancel starting containers"
 elif [ -z "$DOCKER_ATTACHED_MODE" ]; then
-    echo "Starting detached containers: ${DOCKER_CONTAINERS}"
+    echo "Starting detached containers:"
     docker-compose up -d ${DOCKER_CONTAINERS}
 else
-    echo "Starting attached containers: ${DOCKER_CONTAINERS}"
+    echo "Starting attached containers:"
     docker-compose up ${DOCKER_CONTAINERS}
 fi
