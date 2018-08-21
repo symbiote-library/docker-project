@@ -23,6 +23,7 @@ DOCKER_PHP_VERSION="7.1"
 DOCKER_MYSQL_VERSION="5.6"
 DOCKER_NODE_VERSION="8.11"
 DOCKER_YARN_PATH="path/to/yarn/"
+DOCKER_CLISCRIPT_PATH="path/to/cli-script.php"
 ```
 
 #### Step 3
@@ -85,6 +86,7 @@ The following environment variables are used by the `docker-compose.yml` and can
 * `DOCKER_MYSQL_VERSION`: Defaults to `5.6`.
 * `DOCKER_NODE_VERSION`: Options are [6.14, 8.11] Defaults to `8.11`.
 * `DOCKER_YARN_PATH`: Project relative path to yarn for running yarn commands via `dr.sh`.
+* `DOCKER_CLISCRIPT_PATH`: Project relative path to silverstripe's `cli-script.php`.
 
 #### User variables (defined in local `.env` file):
 * `DOCKER_SHARED_PATH`: Where shared data (such as the composer cache) is stored. Defaults to `~/docker`.
@@ -121,6 +123,7 @@ If not specified, the container is automatically chosen based on the supplied ac
 * codecept - runs ./vendor/bin/codecept in the php container.
 * mysqlimport - runs `mysql` with any piped in file sent through to the mysql container.
 * yarn - runs yarn in the node container.
+* task - lists all dev/tasks, or runs a dev/task when supplied, e.g. `./dr.sh task MyTask`.
 
 See `dr.sh` for more details.
 
@@ -221,9 +224,11 @@ Or manually:
 
 #### Running queuejobs for a SilverStripe project
 
-To use it, just add "queuedjobs" to the list of containers in `./du.sh`.
+To use it, just add "queuedjobs" to the list of containers in `docker.env`.
 
 The base docker-compose file contains a container definition for running queuedjobs. In short, this creates an instance of the PHP CLI container, then runs a bash script that will execute the job queue task every 30 seconds for as long as the container exists. 
+
+**Note:** You will need to set the `DOCKER_CLISCRIPT_PATH` env var in `docker.env` (pointint to silverstipe's `cli-script.php`).
 
 ```
 queuedjobs:
@@ -232,7 +237,7 @@ queuedjobs:
     command: [
       "/bin/bash",
       "-c",
-      "while :; do php /var/www/html/framework/cli-script.php dev/tasks/ProcessJobQueueTask queue=2 >> /var/log/php/queuedjob.log; php /var/www/html/framework/cli-script.php dev/tasks/ProcessJobQueueTask queue=3 >> /var/log/php/queuedjob.log; sleep 30; done"  
+      "while :; do php /var/www/html/${DOCKER_PROJECT_PATH} dev/tasks/ProcessJobQueueTask queue=2 >> /var/log/php/queuedjob.log; php /var/www/html/${DOCKER_PROJECT_PATH} dev/tasks/ProcessJobQueueTask queue=3 >> /var/log/php/queuedjob.log; sleep 30; done"
     ]
 ```
 
