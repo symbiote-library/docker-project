@@ -6,6 +6,44 @@ Please add newer logs above older logs. See bottom of file for template.
 
 ---
 
+# 0.1.1
+Author: Name
+
+#### Upgrading:
+
+- Add `DOCKER_CLISCRIPT_PATH` to your `docker.env`.
+- Replace `dr.sh` and `docker-compose.yml`.
+
+#### Fixes:
+
+- Point 1.
+- Point 2.
+
+#### Updates:
+
+- Readme updated with for this update.
+
+#### Renamed:
+
+- Point 1.
+- Point 2.
+
+#### Features:
+
+- Added `DOCKER_CLISCRIPT_PATH` which is used by `dr.sh`.
+- Added `task` cmd to `dr.sh` which lists available dev/tasks or runs a task if one is supplied.
+- Added `fpmreload` cmd to `dr.sh` which runs `kill -USR2 1` on the php container.
+
+#### Feature 1
+
+Text about feature 1.
+
+#### Feature 2
+
+Text about feature 2.
+
+---
+
 ## 0.1.0
 
 #### Upgrading:

@@ -41,9 +41,9 @@ There are several flags you can give to du.sh to perform additional functionalit
 You can combine these flags and each flag will be executed in the given order.
 
 Common uses:
-- `./du.sh -s` when swapping projects (or `-k` when you don't care to retain container states).
+- `./du.sh -s` when swapping projects (or `-k` if you don't care to gracefully shutdown).
 - `./du.sh -kr` when you want to reset the container environment (like after adding .env vars).
-- `./du.sh -p` when starting a project you haven't used in a while.
+- `./du.sh -p` to check for image updates on a project you haven't used in a while.
 - `./du.sh -pc` when you want to update a project's images, but not start the containers.
 
 #### Step 4
@@ -78,7 +78,7 @@ to reference the older version where needed.
 
 ## Environment variables
 
-The following environment variables are used by the `docker-compose.yml` and can be overriden:
+The following environment variables are exported to `docker-compose.yml` and can/should be defined:
 
 #### Project variables (defined in remote `docker.env` file)
 * `DOCKER_CONTAINERS`: List of containers to start when you run `du.sh`. Defaults to `apache php phpcli adminer mysql node`.
@@ -86,7 +86,7 @@ The following environment variables are used by the `docker-compose.yml` and can
 * `DOCKER_MYSQL_VERSION`: Defaults to `5.6`.
 * `DOCKER_NODE_VERSION`: Options are [6.14, 8.11] Defaults to `8.11`.
 * `DOCKER_YARN_PATH`: Project relative path to yarn for running yarn commands via `dr.sh`.
-* `DOCKER_CLISCRIPT_PATH`: Project relative path to silverstripe's `cli-script.php`.
+* `DOCKER_CLISCRIPT_PATH`: Project relative path to silverstripe's `cli-script.php` for `dr.sh`.
 
 #### User variables (defined in local `.env` file):
 * `DOCKER_SHARED_PATH`: Where shared data (such as the composer cache) is stored. Defaults to `~/docker`.
@@ -209,7 +209,7 @@ Optionally, you can set up your docker-compose with a command like the following
 services:
   node: 
     etc: as_per_default_config
-    command: bash -c "cd themes/site-theme && yarn install && yarn start"
+    command: bash -c "cd ${DOCKER_YARN_PATH} && yarn install && yarn start"
 ```
 
 #### Running codeception
@@ -276,10 +276,10 @@ Injector:
 
 
 #### Import a database file
-`./dr.sh mysqlimport -u [USERNAME] -p[YOUR_PASSWORD] [DATABASE_NAME] < inputfile-on-host.sql`
+`./dr.sh mysqlimport -u[USERNAME] -p[YOUR_PASSWORD] [DATABASE_NAME] < inputfile-on-host.sql`
 
 E.g. I copy a *.sql file into the root of my project folder, run the following command, and then delete the *.sql file.
-`./dr.sh mysqlimport -u root -ppassword project-name < backup.sql`.
+`./dr.sh mysqlimport -uroot -ppassword db-name < backup.sql`.
 
 From the docker examples:
 
@@ -305,16 +305,16 @@ Enabling extensions and specific PHP config needs to be done as part of the rele
     volumes:
       - '.:/var/www/html'
       - ~/docker/logs:/var/log/silverstripe
-    command: bash -c "docker-php-ext-enable xdebug && php-fpm"
+    command: bash -c "${DOCKER_PHP_COMMAND} && php-fpm"
 ```
 
-The default `docker-compose.yml` file comes with this parameterised as `PHP_FPM_EXTENSIONS`, and can be set in your `.env` file. This also allows for the specification of specific PHP config options, for example to set `display_errors=On`.
+The default `docker-compose.yml` file comes with this parameterised as `DOCKER_PHP_COMMAND`, and can be set in your `.env` file. This also allows for the specification of specific PHP config options, for example to set `display_errors = On`.
 
 ```
-PHP_FPM_EXTENSIONS=docker-php-ext-enable xdebug && printf "display_errors=1" >> /usr/local/etc/php/php.ini &&
+DOCKER_PHP_COMMAND='docker-php-ext-enable xdebug && echo "display_errors = 1" >> /usr/local/etc/php/php.ini &&'
 ```
 
-Note: you'll need to destroy the containers (`docker-compose down` should do, otherwise `docker ps -a` and `docker rm {id}`).
+Note: you'll need to destroy the containers (`./du.sh -kr` should do, otherwise `docker ps -a` and `docker rm {id}`).
 
 #### XDebug configuration 
 
@@ -326,7 +326,7 @@ If using vscode, remember you'll need to set a `pathMapping` option in launch.js
 {
     "pathMappings": 
     { 
-      "/var/www/html": "${workspaceRoot}" 
+      "/var/www/html": "${workspaceFolder}" 
     }
 }
 ```
@@ -347,7 +347,7 @@ Or alternatively, user profile wide by changing user settings:
                 "request": "launch",
                 "port": 9000,
                 "pathMappings": {
-                    "/var/www/html": "${workspaceRoot}"
+                    "/var/www/html": "${workspaceFolder}"
                 }
             }
         ]
