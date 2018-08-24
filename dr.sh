@@ -134,7 +134,7 @@ else
             echo "Please add the DOCKER_CLISCRIPT_PATH env var"
             exit 1;
         else
-            docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "php $DOCKER_CLISCRIPT_PATH dev/tasks/ $@"
+            docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "php $DOCKER_CLISCRIPT_PATH dev/tasks/$@"
         fi
     else
         docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} "$@"
