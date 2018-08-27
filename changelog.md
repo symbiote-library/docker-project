@@ -7,40 +7,26 @@ Please add newer logs above older logs. See bottom of file for template.
 ---
 
 # 0.1.1
-Author: Name
+Author: JCarter
 
 #### Upgrading:
 
 - Add `DOCKER_CLISCRIPT_PATH` to your `docker.env`.
-- Replace `dr.sh` and `docker-compose.yml`.
-
-#### Fixes:
-
-- Point 1.
-- Point 2.
+- Replace `dr.sh`, `du.sh`, and `docker-compose.yml`.
 
 #### Updates:
 
-- Readme updated with for this update.
-
-#### Renamed:
-
-- Point 1.
-- Point 2.
+- Readme updated for this update.
+- Defined defaults in `dr.sh` for `DOCKER_YARN_PATH` and `DOCKER_CLISCRIPT_PATH`. There's no perfect solution here as cli path is used in docker-compose, but yarn path is not, etc.
+- A little formatting on the files, nothing that affects functionality.
 
 #### Features:
 
-- Added `DOCKER_CLISCRIPT_PATH` which is used by `dr.sh`.
+- Added `DOCKER_CLISCRIPT_PATH` which is used by `dr.sh` to run `task`.
 - Added `task` cmd to `dr.sh` which lists available dev/tasks or runs a task if one is supplied.
 - Added `fpmreload` cmd to `dr.sh` which runs `kill -USR2 1` on the php container.
-
-#### Feature 1
-
-Text about feature 1.
-
-#### Feature 2
-
-Text about feature 2.
+- Added `DOCKER_SSH_VOLUME` used by `docker-compose.yml` to mount ssh dir to phpcli container (needed for mac users). This has no effect for linux users.
+- Added `DOCKER_EXEC_IDS` used by `dr.sh` to define the executing user (`uid:gid`) (needed for mac users). This has no effect for linux users.
 
 ---
 

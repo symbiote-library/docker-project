@@ -14,7 +14,7 @@ Copy these files into the root of your SilverStripe project folder:
 
 #### Step 2
 
-Create a `docker.env` file in your project root and define the docker configuration.
+Create a `docker.env` file in your project root to define the docker configuration.
 
 Example config:
 ```
@@ -47,6 +47,14 @@ Common uses:
 - `./du.sh -pc` when you want to update a project's images, but not start the containers.
 
 #### Step 4
+
+Define local `.env` variables to customise your experience. See *Environment Variables* for a full list.
+
+Mac users will need to:
+- Set `DOCKER_SSH_VOLUME` to `"~/.ssh:/var/www/.ssh"` (where the first path points to your ssh folder).
+- Set `DOCKER_EXEC_IDS` to `"1000:1000"` (uid:gid).
+
+#### Step 5
 
 To get into the containers, or run commands against the containers, the `./dr.sh` script is available. See below in **Executing commands** for specifics.
 
@@ -93,6 +101,8 @@ The following environment variables are exported to `docker-compose.yml` and can
 * `DOCKER_PROJECT_PATH`: Where project specific data is stored. Defaults to `DOCKER_SHARED_PATH/(basename pwd)` (define pull path when overriding).
 * `DOCKER_ATTACHED_MODE`: If defined (any value), starts all containers in attached mode.
 * `DOCKER_PHP_COMMAND`: Used to add extra commands to the php fpm startup, in particular extensions. Defaults to `""`. Note that you _must_ include a trailing `&&`.
+* `DOCKER_SSH_VOLUME`: Mounts ssh keys into phpcli container (mac users see *Step 4*).
+* `DOCKER_EXEC_IDS`: uid and gui used when running `exec` on a container (mac users see *Step 4*).
 
 Notes:
 - You can use SilverStripe's `.env` file as they both follow the same formatting rules.
