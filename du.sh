@@ -70,9 +70,14 @@ if [ -z "$DOCKER_NODE_VERSION" ]; then
     echo "Setting DOCKER_NODE_VERSION to $DOCKER_NODE_VERSION"
 fi
 
-if [ -z "$DOCKER_CLISCRIPT_VERSION" ]; then
-    DOCKER_CLISCRIPT_VERSION="framework\cli-script.php"
-    echo "Setting DOCKER_CLISCRIPT_VERSION to $DOCKER_CLISCRIPT_VERSION"
+if [ -z "$DOCKER_CLISCRIPT_PATH" ]; then
+    DOCKER_CLISCRIPT_PATH="framework\cli-script.php"
+    echo "Setting DOCKER_CLISCRIPT_PATH to $DOCKER_CLISCRIPT_PATH"
+fi
+
+if [ -z "$DOCKER_SSH_VOLUME" ]; then
+    DOCKER_SSH_VOLUME="null"
+    echo "Setting DOCKER_SSH_VOLUME to null"
 fi
 
 #handle solr dir/perms
@@ -96,6 +101,7 @@ export DOCKER_PHP_VERSION="$DOCKER_PHP_VERSION"
 export DOCKER_MYSQL_VERSION="$DOCKER_MYSQL_VERSION"
 export DOCKER_NODE_VERSION="$DOCKER_NODE_VERSION"
 export DOCKER_PHP_COMMAND="$DOCKER_PHP_COMMAND"
+export DOCKER_SSH_VOLUME="$DOCKER_SSH_VOLUME"
 
 #docker pull
 if [ "$PULL" = "TRUE" ]; then

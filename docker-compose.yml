@@ -53,6 +53,7 @@ services:
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/php
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/silverstripe
       - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
+      - ${DOCKER_SSH_VOLUME}
     command: ["/bin/bash"]
 
   sqsrunner:

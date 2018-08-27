@@ -8,11 +8,15 @@ fi
 
 #handle env vars
 if [ -z "$DOCKER_YARN_PATH" ]; then
-    DOCKER_YARN_PATH=""
+    DOCKER_YARN_PATH="themes/"
 fi
 
 if [ -z "$DOCKER_CLISCRIPT_PATH" ]; then
-    DOCKER_CLISCRIPT_PATH=""
+    DOCKER_CLISCRIPT_PATH="framework/cli-script.php"
+fi
+
+if [ -z "$DOCKER_EXEC_IDS" ]; then
+    DOCKER_EXEC_IDS="`id -u`:`id -g`"
 fi
 
 CMD=$1
@@ -93,7 +97,6 @@ if [ $CONTAINER = "none" ]; then
     echo "  php, fpm, mysql, node"
     echo "Available commands are below; any arguments are passed to these commands in the container "
     echo "  composer, phing, codecept, mysqlimport, yarn"
-
     exit 1;
 fi
 
@@ -108,35 +111,22 @@ CONTAINER_NAME=${CONTAINER_PREFIX}_${CONTAINER}_1
 
 if [ $ACTION = "cli" ]; then
     echo "Dropping to shell in $CONTAINER"
-    docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} /bin/bash
+    docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} /bin/bash
 elif [ $ACTION = "exec" ]; then
-    # double shift
-    shift
-    shift
-    echo "Execute bash wrapped command on $CONTAINER"
-    docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "$@"
+    echo "Execute bash wrapped command on $CONTAINER" && shift && shift    
+    docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "$@"
 else
-    shift
-    echo "Running command $ACTION in $CONTAINER"
-    if [ "mysqlimport" = $CMD ]; then
-        docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} "$@" < /proc/$$/fd/0
-    elif [ "fpmreload" = $CMD ]; then
-        docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} bash -c kill -USR2 1
-    elif [ "yarn" = $CMD ]; then
-        if [ "$DOCKER_YARN_PATH" = "" ]; then
-            echo "Please add the DOCKER_YARN_PATH env var"
-            exit 1;
-        else
-            docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $@"
-        fi
+    echo "Running command $ACTION in $CONTAINER" && shift
+
+    if [ "yarn" = $CMD ]; then        
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $@"
     elif [ "task" = $CMD ]; then
-        if [ "$DOCKER_CLISCRIPT_PATH" = "" ]; then
-            echo "Please add the DOCKER_CLISCRIPT_PATH env var"
-            exit 1;
-        else
-            docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "php $DOCKER_CLISCRIPT_PATH dev/tasks/$@"
-        fi
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "php $DOCKER_CLISCRIPT_PATH dev/tasks/$@"
+    elif [ "mysqlimport" = $CMD ]; then
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} ${ACTION} "$@" < /proc/$$/fd/0
+    elif [ "fpmreload" = $CMD ]; then
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} ${ACTION} bash -c kill -USR2 1
     else
-        docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} "$@"
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} ${ACTION} "$@"
     fi
 fi
