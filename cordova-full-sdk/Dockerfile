@@ -63,7 +63,7 @@ ENV CORDOVA_VERSION 8.0.0
 
 WORKDIR "/tmp"
 
-RUN npm i -g --unsafe-perm cordova@${CORDOVA_VERSION}
+RUN npm i -g --unsafe-perm cordova@${CORDOVA_VERSION} && npm install -g cordova-simulate
 
 # ENV ANDROID_PLATFORM_TOOLS_URL="https://dl.google.com/android/repository/platform-tools_r28.0.0-linux.zip"
 
@@ -72,6 +72,19 @@ RUN npm i -g --unsafe-perm cordova@${CORDOVA_VERSION}
 # RUN wget -O plaform-tools.zip ${ANDROID_PLATFORM_TOOLS_URL} && \
 #     unzip plaform-tools.zip && rm plaform-tools.zip
 
-RUN groupadd --gid 1000 cordova \
-  && useradd --uid 1000 --gid cordova --shell /bin/bash --create-home cordova
+RUN mkdir -p /home/cordova && mkdir -p /etc/sudoers.d && \
+    echo "cordova:x:1000:1000:Cordova,,,:/home/cordova:/bin/bash" >> /etc/passwd && \
+    echo "cordova:x:1000:" >> /etc/group && \
+    echo "cordova ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/cordova && \
+    chmod 0440 /etc/sudoers.d/cordova && \
+    chown cordova:cordova -R /home/cordova
 
+USER cordova
+ENV HOME /home/cordova
+
+# RUN groupadd --gid 1000 cordova \
+#   && useradd --uid 1000 --gid cordova --shell /bin/bash --create-home cordova
+
+COPY entrypoint.sh /opt/entrypoint.sh
+
+ENTRYPOINT [ "/opt/entrypoint.sh" ]
