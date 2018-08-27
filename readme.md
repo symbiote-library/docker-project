@@ -51,8 +51,8 @@ Common uses:
 Define local `.env` variables to customise your experience. See *Environment Variables* for a full list.
 
 Mac users will need to:
-- Set `DOCKER_SSH_VOLUME` to `"~/.ssh:/var/www/.ssh"` (where the first path points to your ssh folder).
-- Set `DOCKER_EXEC_IDS` to `"1000:1000"` (uid:gid).
+- Set `DOCKER_SSH_VOLUME="~/.ssh:/var/www/.ssh"` in `.env` (where the first path points to your ssh folder).
+- Set `DOCKER_EXEC_IDS="1000:1000"` in `.env` (uid:gid).
 
 #### Step 5
 

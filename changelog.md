@@ -6,7 +6,7 @@ Please add newer logs above older logs. See bottom of file for template.
 
 ---
 
-# 0.1.1
+## 0.1.1
 Author: JCarter
 
 #### Upgrading:
@@ -31,6 +31,7 @@ Author: JCarter
 ---
 
 ## 0.1.0
+Author: JCarter
 
 #### Upgrading:
 
@@ -108,7 +109,7 @@ Common uses:
 
 # TEMPLATE
 
-# x.x.x (tag here)
+## x.x.x (tag here)
 Author: Name
 
 #### Upgrading: (instruction on moving to this version)
