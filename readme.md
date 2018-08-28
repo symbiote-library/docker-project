@@ -42,7 +42,7 @@ You can combine these flags and each flag will be executed in the given order.
 
 Common uses:
 - `./du.sh -s` when swapping projects (or `-k` if you don't care to gracefully shutdown).
-- `./du.sh -kr` when you want to reset the container environment (like after adding .env vars).
+- `./du.sh -kr` when you want to recreate containers.
 - `./du.sh -p` to check for image updates on a project you haven't used in a while.
 - `./du.sh -pc` when you want to update a project's images, but not start the containers.
 
