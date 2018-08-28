@@ -46,7 +46,7 @@ if [ -z "$DOCKER_CONTAINERS" ]; then
 fi
 
 if [ -z "$DOCKER_SHARED_PATH" ]; then
-    DOCKER_SHARED_PATH="~/docker"
+    DOCKER_SHARED_PATH="~/docker-data"
     echo "Setting DOCKER_SHARED_PATH to $DOCKER_SHARED_PATH"
 fi
 
