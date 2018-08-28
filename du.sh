@@ -76,7 +76,7 @@ if [ -z "$DOCKER_CLISCRIPT_PATH" ]; then
 fi
 
 if [ -z "$DOCKER_SSH_VOLUME" ]; then
-    DOCKER_SSH_VOLUME="null"
+    DOCKER_SSH_VOLUME="/dev/null:/dev/null"
     echo "Setting DOCKER_SSH_VOLUME to null"
 fi
 
