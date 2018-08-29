@@ -1,5 +1,11 @@
 #!/bin/sh
 
+#loads user env vars into this process
+ENV="./.env"
+if [ -e $ENV ]; then
+    . $ENV
+fi
+
 #loads docker env vars into this process
 DENV="./docker.env"
 if [ -e $DENV ]; then
