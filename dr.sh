@@ -76,12 +76,32 @@ in
 esac
 
 if [ $CONTAINER = "none" ]; then
-    echo "Please provide a container or a command to be run - ./dr.sh {container|command} [arguments] "
-    echo "Available containers are as follows; any arguments will be used as docker exec parameters : "
-    echo "  php, fpm, mysql, node"
-    echo "Available commands are below; any arguments are passed to these commands in the container "
-    echo "  composer, phing, codecept, mysqlimport, yarn"
-
+    echo "Usage: ./dr.sh container [arguments]"
+    echo "       ./dr.sh command"
+    echo "       ./dr.sh <args>"
+    echo ""
+    echo "container  : { apache | adminer | php | phpcli | mysql | node }"
+    echo "arguments  : { cli | exec [<args>] | [<args] }"
+    echo ""
+    echo "<args>     : free-form - will be passed as-is to the container"
+    echo ""
+    echo "commands   : { php | composer | sspak | phing | codecept | task | fpm"
+    echo "             | fpmreload | mysql | mysqlimport | sel | node | yarn }"
+    echo ""
+    echo "Command are just shortcuts:"
+    echo "php           = phpcli php"
+    echo "composer      = phpcli composer"
+    echo "sspak         = phpcli sspak"
+    echo "phing         = phpcli phing"
+    echo "codecept      = phpcli vendor/bin/codecept"
+    echo "task          = phpcli task"
+    echo "fpm           = php bash"
+    echo "fpmreload     = php reload"
+    echo "mysql         = mysql mysql"
+    echo "mysqlimport   = mysql mysql (with docker exec --interactive)"
+    echo "sel           = selenium"
+    echo "node          = node bash"
+    echo "yarn          = node yarn"
     exit 1;
 fi
 
