@@ -110,11 +110,14 @@ Notes:
 
 ## Executing commands
 
- #### In short:
+Note that anything in `{}` is supplied by the user.
 
-`./dr.sh [container] action [arguments]`
+#### In short:
 
-Where **container** is one of
+* `./dr.sh [action] {...}`
+* `./dr.sh [container] [action] {...}`
+
+#### Containers
 
 * php
 * fpm
@@ -126,14 +129,31 @@ If not specified, the container is automatically chosen based on the supplied ac
 
 #### Actions:
 
-* cli - drop into the container in a bash shell.
-* exec - execute a command in that container (basically `docker exec`).
-* composer - runs composer in the php container.
-* phing - runs phing in the php container.
-* codecept - runs ./vendor/bin/codecept in the php container.
-* mysqlimport - runs `mysql` with any piped in file sent through to the mysql container.
-* yarn - runs yarn in the node container.
-* task - lists all dev/tasks, or runs a dev/task when supplied, e.g. `./dr.sh task MyTask`.
+* `cli` - Drop into the given container in a bash shell.
+  * `./dr.sh {container} cli`.
+* `exec` - Runs `{cmd}` in the given container (basically `docker exec`).
+  * `./dr.sh {container} exec {cmd}`.
+* `php` - Executes `php {cmd}` in the phpcli container.
+  * `./dr.sh php {script.php}`.
+  * `./dr.sh php -r {php code}`.
+* `composer` - Executes `composer {cmd}` in the phpcli container.
+  * `./dr.sh composer install`.
+  * `./dr.sh composer update {package}`.
+* `phing` - Runs phing in the phpcli container.
+  * `./dr.sh phing`.
+* `codecept` - Executes `./vendor/bin/codecept {cmd}` in the phpcli container.
+  * `./dr.sh codecept build`.
+* `mysqlimport` - Executes `mysql {cmd} < {file}`.
+  * `./dr.sh mysqlimport -u{user} -p{password} {db} < {db.sql}`.
+* `yarn` - Execute `yarn {cmd}` in the node container.
+  * `./dr.sh yarn install`.
+* `task` - Executes `dev/tasks` or `dev/tasks {task}`.
+  * `./dr.sh task {task}`.
+* `sspak` - Executes an `sspak {cmd}` in the phpcli container.
+* `fpm` - Executes `{cmd}` in the php container.
+* `fpmreload` - Sends `kill -USR2 1` to the php container.
+* `sel` - Executes `{cmd}` in the selenium container.
+* `fixperms` - Fixes permissions for the docker-date directory and project directory.
 
 See `dr.sh` for more details.
 
