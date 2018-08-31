@@ -16,13 +16,14 @@ fi
 if [ -z "$DOCKER_YARN_PATH" ]; then
     DOCKER_YARN_PATH="themes/"
 fi
-
 if [ -z "$DOCKER_CLISCRIPT_PATH" ]; then
     DOCKER_CLISCRIPT_PATH="framework/cli-script.php"
 fi
-
 if [ -z "$DOCKER_EXEC_IDS" ]; then
     DOCKER_EXEC_IDS="`id -u`:`id -g`"
+fi
+if [ -z "$DOCKER_SHARED_PATH" ]; then
+    DOCKER_SHARED_PATH="~/docker-data"
 fi
 
 CMD=$1
@@ -85,6 +86,10 @@ in
         CONTAINER="node"
         ACTION="yarn"
         ;;
+    fixperms) 
+        CONTAINER="node"
+        ACTION="fixperms"
+        ;;
 esac
 
 case "$2"
@@ -115,7 +120,31 @@ fi
 
 CONTAINER_NAME=${CONTAINER_PREFIX}_${CONTAINER}_1
 
-if [ $ACTION = "cli" ]; then
+if [ $ACTION = "fixperms" ]; then
+    #get sudo perms
+    sudo echo "" > /dev/null
+    echo "Fixing $PWD"
+    # set perms for project directory
+    sudo chown -Rf 1000:1000 .
+    sudo chmod -Rf 755 .
+    # get shared root (expanding '~')
+    SHARED=$(eval ls -d -- "$DOCKER_SHARED_PATH")
+    # set blanket perms everything in shared
+    sudo chown -Rf 1000:33 $SHARED
+    sudo chmod -Rf 775 $SHARED
+    # loop all dirs in shared
+    for DIR in $SHARED/*/; do
+        echo "Fixing $DIR"
+        # into dir
+        cd $DIR
+        # set perms for snowflake dirs 
+        sudo chown -Rf 999:999 mysql-data
+        sudo chown -Rf 8983:8983 solr-data solr-logs
+        sudo chmod -Rf 777 logs
+        # back out
+        cd ..
+    done
+elif [ $ACTION = "cli" ]; then
     echo "Dropping to shell in $CONTAINER"
     docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} /bin/bash
 elif [ $ACTION = "exec" ]; then

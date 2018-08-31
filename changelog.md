@@ -27,6 +27,7 @@ Author: JCarter
 - Added `fpmreload` cmd to `dr.sh` which runs `kill -USR2 1` on the php container.
 - Added `DOCKER_SSH_VOLUME` used by `docker-compose.yml` to mount ssh dir to phpcli container (needed for mac users). This has no effect for linux users.
 - Added `DOCKER_EXEC_IDS` used by `dr.sh` to define the executing user (`uid:gid`) (needed for mac users). This has no effect for linux users.
+- Added `fixperms` cmd to `dr.sh` which sets permissions for all directories and files in `DOCKER_SHARED_PATH` and the project directory so that containers can rwx to them.
 
 ---
 
