@@ -17,6 +17,7 @@ ACTION="pass"
 RUN_OPTS="-it"
 CONTAINER_PREFIX=$(basename $(pwd))
 
+# run pre-defined shortcut commands
 case "$CMD"
 in
     php) 
@@ -65,6 +66,61 @@ in
         ;;
 esac
 
+# function: check if given full name container exist
+fn_container_exists() {        
+        container_name_match=$(docker ps --filter="name=$1" --format "{{.Names}}")
+        lines=$(echo $container_name_match | grep "$1" | wc -l)
+        if [ "$container_name_match" = "$1" ] && [ "$lines" = "1" ]; then
+                return 0; 
+        else
+                return 1;
+        fi
+}
+
+if [ $CONTAINER = "none" ]; then
+    # First parameter is not a command, so check if it's a container name
+    if fn_container_exists "$CMD"; then        
+        CONTAINER_NAME="$CMD"
+        CONTAINER=$(echo "$CONTAINER_NAME" | sed -e 's/^.*_\(.*\)_[[:digit:]]$/\1/')          
+    else
+        CONTAINER_LIST=$(docker ps --filter="name=$CONTAINER_PREFIX" --format "{{.Names}}")
+        echo "Usage  ./dr.sh command"
+        echo "       ./dr.sh container [arguments]"
+        echo ""    
+        echo "commands   : { php | composer | sspak | phing | codecept | task | fpm"
+        echo "             | fpmreload | mysql | mysqlimport | sel | node | yarn }"
+        echo ""
+        echo "Command are shortcuts to:"
+        echo "php         = phpcli php"
+        echo "composer    = phpcli composer"
+        echo "sspak       = phpcli sspak"
+        echo "phing       = phpcli phing"
+        echo "codecept    = phpcli vendor/bin/codecept"
+        echo "task        = phpcli task"
+        echo "fpm         = php bash"
+        echo "fpmreload   = php reload"
+        echo "mysql       = mysql mysql"
+        echo "mysqlimport = mysql mysql (with docker exec --interactive)"
+        echo "sel         = selenium"
+        echo "node        = node bash"
+        echo "yarn        = node yarn"
+        echo ""
+        echo "Alternatively, run commands directly on containers if needed:"
+        echo "container  : { $(echo $CONTAINER_LIST | sed -e 's/\ /\ \|\ /g') }" #apache | adminer | php | phpcli | mysql | node }"
+        echo "arguments  : { cli | exec [<args>] | [<args>] }"
+        echo "<args>     : free-form - will be passed as-is to the container"
+        echo ""
+        exit 1;
+    fi
+fi
+
+# check whether we're running in CI on gitlab
+if [ ! -z "${CI}" ]; then
+    # noop
+    RUN_OPTS="-i"
+    echo "Executing in CI, setting to no TTY"
+fi
+
 case "$2"
 in
     cli) 
@@ -74,43 +130,6 @@ in
         ACTION="exec"
         ;;
 esac
-
-if [ $CONTAINER = "none" ]; then
-    echo "Usage: ./dr.sh container [arguments]"
-    echo "       ./dr.sh command"
-    echo "       ./dr.sh <args>"
-    echo ""
-    echo "container  : { apache | adminer | php | phpcli | mysql | node }"
-    echo "arguments  : { cli | exec [<args>] | [<args] }"
-    echo ""
-    echo "<args>     : free-form - will be passed as-is to the container"
-    echo ""
-    echo "commands   : { php | composer | sspak | phing | codecept | task | fpm"
-    echo "             | fpmreload | mysql | mysqlimport | sel | node | yarn }"
-    echo ""
-    echo "Command are just shortcuts:"
-    echo "php           = phpcli php"
-    echo "composer      = phpcli composer"
-    echo "sspak         = phpcli sspak"
-    echo "phing         = phpcli phing"
-    echo "codecept      = phpcli vendor/bin/codecept"
-    echo "task          = phpcli task"
-    echo "fpm           = php bash"
-    echo "fpmreload     = php reload"
-    echo "mysql         = mysql mysql"
-    echo "mysqlimport   = mysql mysql (with docker exec --interactive)"
-    echo "sel           = selenium"
-    echo "node          = node bash"
-    echo "yarn          = node yarn"
-    exit 1;
-fi
-
-# check whether we're running in CI on gitlab
-if [ ! -z "${CI}" ]; then
-    # noop
-    RUN_OPTS="-i"
-    echo "Executing in CI, setting to no TTY"
-fi
 
 CONTAINER_NAME=${CONTAINER_PREFIX}_${CONTAINER}_1
 
