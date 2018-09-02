@@ -143,7 +143,7 @@ if [ $ACTION = "fixperms" ]; then
         # set perms for snowflake dirs 
         sudo chown -Rf 999:999 mysql-data
         sudo chown -Rf 8983:8983 solr-data solr-logs
-        sudo chmod -Rf 777 logs
+        sudo chmod -Rf 777 logs solr-logs
         # back out
         cd ..
     done
