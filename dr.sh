@@ -156,7 +156,6 @@ elif [ $ACTION = "exec" ]; then
     docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "$@"
 else
     echo "Running command $ACTION in $CONTAINER" && shift
-
     if [ "yarn" = $CMD ]; then        
         docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $@"
     elif [ "task" = $CMD ]; then

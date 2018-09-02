@@ -129,31 +129,36 @@ If not specified, the container is automatically chosen based on the supplied ac
 
 #### Actions:
 
-* `cli` - Drop into the given container in a bash shell.
+* **cli** - Drop into the given container in a bash shell.
   * `./dr.sh {container} cli`.
-* `exec` - Runs `{cmd}` in the given container (basically `docker exec`).
+* **exec** - Runs `{cmd}` in the given container (basically `docker exec`).
   * `./dr.sh {container} exec {cmd}`.
-* `php` - Executes `php {cmd}` in the phpcli container.
+* **php** - Executes `php {cmd}` in the phpcli container.
   * `./dr.sh php {script.php}`.
   * `./dr.sh php -r {php code}`.
-* `composer` - Executes `composer {cmd}` in the phpcli container.
+* **composer** - Executes `composer {cmd}` in the phpcli container.
   * `./dr.sh composer install`.
   * `./dr.sh composer update {package}`.
-* `phing` - Runs phing in the phpcli container.
+* **phing** - Runs phing in the phpcli container.
   * `./dr.sh phing`.
-* `codecept` - Executes `./vendor/bin/codecept {cmd}` in the phpcli container.
+* **codecept** - Executes `./vendor/bin/codecept {cmd}` in the phpcli container.
   * `./dr.sh codecept build`.
-* `mysqlimport` - Executes `mysql {cmd} < {file}`.
+* **mysqlimport** - Executes `mysql {cmd} < {file}`.
   * `./dr.sh mysqlimport -u{user} -p{password} {db} < {db.sql}`.
-* `yarn` - Execute `yarn {cmd}` in the node container.
+* **yarn** - Execute `yarn {cmd}` in the node container.
   * `./dr.sh yarn install`.
-* `task` - Executes `dev/tasks` or `dev/tasks {task}`.
+* **task** - Executes `dev/tasks` or `dev/tasks {task}`.
   * `./dr.sh task {task}`.
-* `sspak` - Executes an `sspak {cmd}` in the phpcli container.
-* `fpm` - Executes `{cmd}` in the php container.
-* `fpmreload` - Sends `kill -USR2 1` to the php container.
-* `sel` - Executes `{cmd}` in the selenium container.
-* `fixperms` - Fixes permissions for the docker-date directory and project directory.
+* **sspak** - Executes an `sspak {cmd}` in the phpcli container.
+  * `./dr.sh sspak load {file} {webroot}`
+* **fpm** - Executes `{cmd}` in the php container.
+  * `./dr.sh fpm cli`.
+* **fpmreload** - Sends `kill -USR2 1` to the php container.
+  * `./dr.sh fpmreload`.
+* **sel** - Executes `{cmd}` in the selenium container.
+  * `./dr.sh sel cli`.
+* **fixperms** - Fixes permissions for the docker-date directory and project directory.
+  * `./dr.sh fixperms`.
 
 See `dr.sh` for more details.
 
