@@ -22,12 +22,13 @@ Author: JCarter
 
 #### Features:
 
-- Added `DOCKER_CLISCRIPT_PATH` which is used by `dr.sh` to run `task`.
-- Added `task` cmd to `dr.sh` which lists available dev/tasks or runs a task if one is supplied.
-- Added `fpmreload` cmd to `dr.sh` which runs `kill -USR2 1` on the php container.
-- Added `DOCKER_SSH_VOLUME` used by `docker-compose.yml` to mount ssh dir to phpcli container (needed for mac users). This has no effect for linux users.
-- Added `DOCKER_EXEC_IDS` used by `dr.sh` to define the executing user (`uid:gid`) (needed for mac users). This has no effect for linux users.
-- Added `fixperms` cmd to `dr.sh` which sets permissions for all directories and files in `DOCKER_SHARED_PATH` and the project directory so that containers can rwx to them.
+- Added `DOCKER_CLISCRIPT_PATH` for `docker.env` which is used by `dr.sh` to run `task`.
+- Added `task` action to `dr.sh` which lists available dev/tasks or runs a task if one is supplied.
+- Added `fpmreload` action to `dr.sh` which runs `kill -USR2 1` on the php container.
+- Added `DOCKER_SSH_VOLUME` for `.env` which is used by `docker-compose.yml` to mount ssh dir to phpcli container (needed for mac users). This has no effect for linux users.
+- Added `DOCKER_EXEC_IDS` for `.env` which is used by `dr.sh` to define the executing user (`uid:gid`) (needed for mac users). This has no effect for linux users.
+- Added `fixperms` action to `dr.sh` which sets permissions for all directories and files in `DOCKER_SHARED_PATH` and the project directory so that containers can rwx to them.
+- Added `DOCKER_COMPOSER_TIMEOUT` for `.env` which is used by `docker-compose.yml` to set the composer timeout. The composer default is 300, and so is the `du.sh` default.
 
 ---
 
