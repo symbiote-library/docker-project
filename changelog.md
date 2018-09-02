@@ -13,12 +13,14 @@ Author: JCarter
 
 - Add `DOCKER_CLISCRIPT_PATH` to your `docker.env`.
 - Replace `dr.sh`, `du.sh`, and `docker-compose.yml`.
+- Users may wish to rename their `~/docker` dir to `~/docker-data` to bring it inline with the new default.
 
 #### Updates:
 
 - Readme updated for this update.
 - Defined defaults in `dr.sh` for `DOCKER_YARN_PATH` and `DOCKER_CLISCRIPT_PATH`. There's no perfect solution here as cli path is used in docker-compose, but yarn path is not, etc.
 - A little formatting on the files, nothing that affects functionality.
+- Default shared dir changed to `docker-data` for clarity.
 
 #### Features:
 
