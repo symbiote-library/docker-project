@@ -102,24 +102,7 @@ in
         ;;
 esac
 
-if [ $CONTAINER = "none" ]; then
-    echo "Please provide a container or a command to be run - ./dr.sh {container|command} [arguments] "
-    echo "Available containers are as follows; any arguments will be used as docker exec parameters : "
-    echo "  php, fpm, mysql, node"
-    echo "Available commands are below; any arguments are passed to these commands in the container "
-    echo "  composer, phing, codecept, mysqlimport, yarn"
-    exit 1;
-fi
-
-# check whether we're running in CI on gitlab
-if [ ! -z "${CI}" ]; then
-    # noop
-    RUN_OPTS="-i"
-    echo "Executing in CI, setting to no TTY"
-fi
-
-CONTAINER_NAME=${CONTAINER_PREFIX}_${CONTAINER}_1
-
+# fix perms action
 if [ $ACTION = "fixperms" ]; then
     #get sudo perms
     sudo echo "" > /dev/null
@@ -144,7 +127,28 @@ if [ $ACTION = "fixperms" ]; then
         # back out
         cd ..
     done
-elif [ $ACTION = "cli" ]; then
+    exit 1;
+fi
+
+if [ $CONTAINER = "none" ]; then
+    echo "Please provide a container or a command to be run - ./dr.sh {container|command} [arguments] "
+    echo "Available containers are as follows; any arguments will be used as docker exec parameters : "
+    echo "  php, fpm, mysql, node"
+    echo "Available commands are below; any arguments are passed to these commands in the container "
+    echo "  composer, phing, codecept, mysqlimport, yarn"
+    exit 1;
+fi
+
+# check whether we're running in CI on gitlab
+if [ ! -z "${CI}" ]; then
+    # noop
+    RUN_OPTS="-i"
+    echo "Executing in CI, setting to no TTY"
+fi
+
+CONTAINER_NAME=${CONTAINER_PREFIX}_${CONTAINER}_1
+
+if [ $ACTION = "cli" ]; then
     echo "Dropping to shell in $CONTAINER"
     docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} /bin/bash
 elif [ $ACTION = "exec" ]; then
