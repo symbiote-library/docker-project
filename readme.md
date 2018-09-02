@@ -97,12 +97,13 @@ The following environment variables are exported to `docker-compose.yml` and can
 * `DOCKER_CLISCRIPT_PATH`: Project relative path to silverstripe's `cli-script.php` for `dr.sh`.
 
 #### User variables (defined in local `.env` file):
-* `DOCKER_SHARED_PATH`: Where shared data (such as the composer cache) is stored. Defaults to `~/docker`.
+* `DOCKER_SHARED_PATH`: Where shared data (such as the composer cache) is stored. Defaults to `~/docker-data`.
 * `DOCKER_PROJECT_PATH`: Where project specific data is stored. Defaults to `DOCKER_SHARED_PATH/(basename pwd)` (define pull path when overriding).
 * `DOCKER_ATTACHED_MODE`: If defined (any value), starts all containers in attached mode.
-* `DOCKER_PHP_COMMAND`: Used to add extra commands to the php fpm startup, in particular extensions. Defaults to `""`. Note that you _must_ include a trailing `&&`.
+* `DOCKER_PHP_COMMAND`: Used to add extra commands to the php fpm startup, in particular extensions. Defaults to nothing. Note that you _must_ include a trailing `&&`.
 * `DOCKER_SSH_VOLUME`: Mounts ssh keys into phpcli container (mac users see *Step 4*).
 * `DOCKER_EXEC_IDS`: uid and gui used when running `exec` on a container (mac users see *Step 4*).
+* `DOCKER_COMPOSER_TIMEOUT`: Sets the composer process timeout. Use this if your composer intall is timing out. Defaults to `300`.
 
 Notes:
 - You can use SilverStripe's `.env` file as they both follow the same formatting rules.
@@ -339,7 +340,7 @@ Enabling extensions and specific PHP config needs to be done as part of the rele
     image: "symbiote/php-fpm:7.1"
     volumes:
       - '.:/var/www/html'
-      - ~/docker/logs:/var/log/silverstripe
+      - ~/docker-data/logs:/var/log/silverstripe
     command: bash -c "${DOCKER_PHP_COMMAND} && php-fpm"
 ```
 
