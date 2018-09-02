@@ -44,40 +44,37 @@ if [ -z "$DOCKER_CONTAINERS" ]; then
     DOCKER_CONTAINERS="apache php phpcli adminer mysql node"
     echo "Setting DOCKER_CONTAINERS to $DOCKER_CONTAINERS"
 fi
-
 if [ -z "$DOCKER_SHARED_PATH" ]; then
     DOCKER_SHARED_PATH="~/docker-data"
     echo "Setting DOCKER_SHARED_PATH to $DOCKER_SHARED_PATH"
 fi
-
 if [ -z "$DOCKER_PROJECT_PATH" ]; then
     DOCKER_PROJECT_PATH=${DOCKER_SHARED_PATH}/$(basename $(pwd))
     echo "Setting DOCKER_PROJECT_PATH to $DOCKER_PROJECT_PATH"
 fi
-
 if [ -z "$DOCKER_PHP_VERSION" ]; then
     DOCKER_PHP_VERSION="7.1"
     echo "Setting DOCKER_PHP_VERSION to $DOCKER_PHP_VERSION"
 fi
-
 if [ -z "$DOCKER_MYSQL_VERSION" ]; then
     DOCKER_MYSQL_VERSION="5.6"
     echo "Setting DOCKER_MYSQL_VERSION to $DOCKER_MYSQL_VERSION"
 fi
-
 if [ -z "$DOCKER_NODE_VERSION" ]; then
     DOCKER_NODE_VERSION="8.11"
     echo "Setting DOCKER_NODE_VERSION to $DOCKER_NODE_VERSION"
 fi
-
 if [ -z "$DOCKER_CLISCRIPT_PATH" ]; then
     DOCKER_CLISCRIPT_PATH="framework\cli-script.php"
     echo "Setting DOCKER_CLISCRIPT_PATH to $DOCKER_CLISCRIPT_PATH"
 fi
-
 if [ -z "$DOCKER_SSH_VOLUME" ]; then
     DOCKER_SSH_VOLUME="/dev/null:/dev/null"
     echo "Setting DOCKER_SSH_VOLUME to null"
+fi
+if [ -z "$DOCKER_COMPOSER_TIMEOUT" ]; then
+    DOCKER_COMPOSER_TIMEOUT="300"
+    echo "Setting DOCKER_COMPOSER_TIMEOUT to 300"
 fi
 
 #handle solr dir/perms
@@ -102,6 +99,7 @@ export DOCKER_MYSQL_VERSION="$DOCKER_MYSQL_VERSION"
 export DOCKER_NODE_VERSION="$DOCKER_NODE_VERSION"
 export DOCKER_PHP_COMMAND="$DOCKER_PHP_COMMAND"
 export DOCKER_SSH_VOLUME="$DOCKER_SSH_VOLUME"
+export DOCKER_COMPOSER_TIMEOUT="$DOCKER_COMPOSER_TIMEOUT"
 
 #docker pull
 if [ "$PULL" = "TRUE" ]; then

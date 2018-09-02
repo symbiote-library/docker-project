@@ -47,6 +47,7 @@ services:
       SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
       GIT_COMMIT: ${CI_COMMIT_SHA}
       GIT_BRANCH: ${CI_COMMIT_REF_SLUG}
+      COMPOSER_PROCESS_TIMEOUT: ${DOCKER_COMPOSER_TIMEOUT}
     volumes:
       - '.:/var/www/html'
       - ${DOCKER_SHARED_PATH}/composer-cache:/usr/local/composer/cache
