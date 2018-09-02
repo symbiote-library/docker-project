@@ -128,8 +128,8 @@ if [ $ACTION = "fixperms" ]; then
     sudo echo "" > /dev/null
     echo "Fixing $PWD"
     # set perms for project directory
-    sudo chown -Rf 1000:1000 .
-    sudo chmod -Rf 755 .
+    sudo chown -Rf `id -u`:1000 .
+    sudo chmod -Rf 775 .
     # get shared root (expanding '~')
     SHARED=$(eval ls -d -- "$DOCKER_SHARED_PATH")
     # set blanket perms everything in shared
