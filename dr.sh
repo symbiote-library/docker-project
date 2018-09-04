@@ -134,7 +134,7 @@ if [ $ACTION = "fixperms" ]; then
     SHARED=$(eval ls -d -- "$DOCKER_SHARED_PATH")
     # set blanket perms everything in shared
     sudo chown -Rf 1000:33 $SHARED
-    sudo chmod -Rf 775 $SHARED
+    sudo chmod -Rf 777 $SHARED                          # CURRENTLY 777 AS MAC WORKAROUND
     # loop all dirs in shared
     for DIR in $SHARED/*/; do
         echo "Fixing $DIR"
@@ -143,7 +143,7 @@ if [ $ACTION = "fixperms" ]; then
         # set perms for snowflake dirs 
         sudo chown -Rf 999:999 mysql-data
         sudo chown -Rf 8983:8983 solr-data solr-logs
-        sudo chmod -Rf 777 logs solr-logs
+        # sudo chmod -Rf 777 logs solr-logs             ; ADD THIS BACK IF NOT GLOBAL 777
         # back out
         cd ..
     done
