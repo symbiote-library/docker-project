@@ -126,15 +126,21 @@ fi
 if [ $ACTION = "fixperms" ]; then
     #get sudo perms
     sudo echo "" > /dev/null
-    echo "Fixing $PWD"
     # set perms for project directory
+    echo "Fixing $PWD"
     sudo chown -Rf `id -u`:1000 .
-    sudo chmod -Rf 775 .
     # get shared root (expanding '~')
     SHARED=$(eval ls -d -- "$DOCKER_SHARED_PATH")
+    # shared perms are OS specific (to work around silly mac)
+    NOT_MAC=$(echo `uname -a` | grep "Darwin")
+    if [ -z "$NOT_MAC" ]; then
+        PERMS="775"
+    else
+        PERMS="777"
+    fi
     # set blanket perms everything in shared
-    sudo chown -Rf 1000:33 $SHARED
-    sudo chmod -Rf 777 $SHARED                          # CURRENTLY 777 AS MAC WORKAROUND
+    sudo chown -Rf 1000:33 $SHARED    
+    sudo chmod -Rf $PERMS $SHARED
     # loop all dirs in shared
     for DIR in $SHARED/*/; do
         echo "Fixing $DIR"
@@ -143,7 +149,7 @@ if [ $ACTION = "fixperms" ]; then
         # set perms for snowflake dirs 
         sudo chown -Rf 999:999 mysql-data
         sudo chown -Rf 8983:8983 solr-data solr-logs
-        # sudo chmod -Rf 777 logs solr-logs             ; ADD THIS BACK IF NOT GLOBAL 777
+        sudo chmod -Rf 777 logs solr-logs
         # back out
         cd ..
     done
