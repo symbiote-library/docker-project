@@ -14,7 +14,7 @@ Copy these files into the root of your SilverStripe project folder:
 
 #### Step 2
 
-Create a `docker.env` file in your project root and define the docker configuration.
+Create a `docker.env` file in your project root to define the docker configuration.
 
 Example config:
 ```
@@ -23,6 +23,7 @@ DOCKER_PHP_VERSION="7.1"
 DOCKER_MYSQL_VERSION="5.6"
 DOCKER_NODE_VERSION="8.11"
 DOCKER_YARN_PATH="path/to/yarn/"
+DOCKER_CLISCRIPT_PATH="path/to/cli-script.php"
 ```
 
 #### Step 3
@@ -40,12 +41,20 @@ There are several flags you can give to du.sh to perform additional functionalit
 You can combine these flags and each flag will be executed in the given order.
 
 Common uses:
-- `./du.sh -s` when swapping projects (or `-k` when you don't care to retain container states).
-- `./du.sh -kr` when you want to reset the container environment (like after adding .env vars).
-- `./du.sh -p` when starting a project you haven't used in a while.
+- `./du.sh -s` when swapping projects (or `-k` if you don't care to gracefully shutdown).
+- `./du.sh -kr` when you want to recreate containers.
+- `./du.sh -p` to check for image updates on a project you haven't used in a while.
 - `./du.sh -pc` when you want to update a project's images, but not start the containers.
 
 #### Step 4
+
+Define local `.env` variables to customise your experience. See *Environment Variables* for a full list.
+
+Mac users will need to:
+- Set `DOCKER_SSH_VOLUME="~/.ssh:/var/www/.ssh"` in `.env` (where the first path points to your ssh folder).
+- Set `DOCKER_EXEC_IDS="1000:1000"` in `.env` (uid:gid).
+
+#### Step 5
 
 To get into the containers, or run commands against the containers, the `./dr.sh` script is available. See below in **Executing commands** for specifics.
 
@@ -77,7 +86,7 @@ to reference the older version where needed.
 
 ## Environment variables
 
-The following environment variables are used by the `docker-compose.yml` and can be overriden:
+The following environment variables are exported to `docker-compose.yml` and can/should be defined:
 
 #### Project variables (defined in remote `docker.env` file)
 * `DOCKER_CONTAINERS`: List of containers to start when you run `du.sh`. Defaults to `apache php phpcli adminer mysql node`.
@@ -85,12 +94,16 @@ The following environment variables are used by the `docker-compose.yml` and can
 * `DOCKER_MYSQL_VERSION`: Defaults to `5.6`.
 * `DOCKER_NODE_VERSION`: Options are [6.14, 8.11] Defaults to `8.11`.
 * `DOCKER_YARN_PATH`: Project relative path to yarn for running yarn commands via `dr.sh`.
+* `DOCKER_CLISCRIPT_PATH`: Project relative path to silverstripe's `cli-script.php` for `dr.sh`.
 
 #### User variables (defined in local `.env` file):
-* `DOCKER_SHARED_PATH`: Where shared data (such as the composer cache) is stored. Defaults to `~/docker`.
+* `DOCKER_SHARED_PATH`: Where shared data (such as the composer cache) is stored. Defaults to `~/docker-data`.
 * `DOCKER_PROJECT_PATH`: Where project specific data is stored. Defaults to `DOCKER_SHARED_PATH/(basename pwd)` (define pull path when overriding).
 * `DOCKER_ATTACHED_MODE`: If defined (any value), starts all containers in attached mode.
-* `DOCKER_PHP_COMMAND`: Used to add extra commands to the php fpm startup, in particular extensions. Defaults to `""`. Note that you _must_ include a trailing `&&`.
+* `DOCKER_PHP_COMMAND`: Used to add extra commands to the php fpm startup, in particular extensions. Defaults to nothing. Note that you _must_ include a trailing `&&`.
+* `DOCKER_SSH_VOLUME`: Mounts ssh keys into phpcli container (mac users see *Step 4*).
+* `DOCKER_EXEC_IDS`: uid and gui used when running `exec` on a container (mac users see *Step 4*).
+* `DOCKER_COMPOSER_TIMEOUT`: Sets the composer process timeout. Use this if your composer intall is timing out. Defaults to `300`.
 
 Notes:
 - You can use SilverStripe's `.env` file as they both follow the same formatting rules.
@@ -98,11 +111,14 @@ Notes:
 
 ## Executing commands
 
- #### In short:
+Note that anything in `{}` is supplied by the user.
 
-`./dr.sh [container] action [arguments]`
+#### In short:
 
-Where **container** is one of
+* `./dr.sh [action] {...}`
+* `./dr.sh [container] [action] {...}`
+
+#### Containers
 
 * php
 * fpm
@@ -114,13 +130,36 @@ If not specified, the container is automatically chosen based on the supplied ac
 
 #### Actions:
 
-* cli - drop into the container in a bash shell.
-* exec - execute a command in that container (basically `docker exec`).
-* composer - runs composer in the php container.
-* phing - runs phing in the php container.
-* codecept - runs ./vendor/bin/codecept in the php container.
-* mysqlimport - runs `mysql` with any piped in file sent through to the mysql container.
-* yarn - runs yarn in the node container.
+* **cli** - Drop into the given container in a bash shell.
+  * `./dr.sh {container} cli`.
+* **exec** - Runs `{cmd}` in the given container (basically `docker exec`).
+  * `./dr.sh {container} exec {cmd}`.
+* **php** - Executes `php {cmd}` in the phpcli container.
+  * `./dr.sh php {script.php}`.
+  * `./dr.sh php -r {php code}`.
+* **composer** - Executes `composer {cmd}` in the phpcli container.
+  * `./dr.sh composer install`.
+  * `./dr.sh composer update {package}`.
+* **phing** - Runs phing in the phpcli container.
+  * `./dr.sh phing`.
+* **codecept** - Executes `./vendor/bin/codecept {cmd}` in the phpcli container.
+  * `./dr.sh codecept build`.
+* **mysqlimport** - Executes `mysql {cmd} < {file}`.
+  * `./dr.sh mysqlimport -u{user} -p{password} {db} < {db.sql}`.
+* **yarn** - Execute `yarn {cmd}` in the node container.
+  * `./dr.sh yarn install`.
+* **task** - Executes `dev/tasks` or `dev/tasks {task}`.
+  * `./dr.sh task {task}`.
+* **sspak** - Executes an `sspak {cmd}` in the phpcli container.
+  * `./dr.sh sspak load {file} {webroot}`
+* **fpm** - Executes `{cmd}` in the php container.
+  * `./dr.sh fpm cli`.
+* **fpmreload** - Sends `kill -USR2 1` to the php container.
+  * `./dr.sh fpmreload`.
+* **sel** - Executes `{cmd}` in the selenium container.
+  * `./dr.sh sel cli`.
+* **fixperms** - Fixes permissions for the docker-date directory and project directory.
+  * `./dr.sh fixperms`.
 
 See `dr.sh` for more details.
 
@@ -206,7 +245,7 @@ Optionally, you can set up your docker-compose with a command like the following
 services:
   node: 
     etc: as_per_default_config
-    command: bash -c "cd themes/site-theme && yarn install && yarn start"
+    command: bash -c "cd ${DOCKER_YARN_PATH} && yarn install && yarn start"
 ```
 
 #### Running codeception
@@ -221,9 +260,11 @@ Or manually:
 
 #### Running queuejobs for a SilverStripe project
 
-To use it, just add "queuedjobs" to the list of containers in `./du.sh`.
+To use it, just add "queuedjobs" to the list of containers in `docker.env`.
 
 The base docker-compose file contains a container definition for running queuedjobs. In short, this creates an instance of the PHP CLI container, then runs a bash script that will execute the job queue task every 30 seconds for as long as the container exists. 
+
+**Note:** You will need to set the `DOCKER_CLISCRIPT_PATH` env var in `docker.env` (pointint to silverstipe's `cli-script.php`).
 
 ```
 queuedjobs:
@@ -232,7 +273,7 @@ queuedjobs:
     command: [
       "/bin/bash",
       "-c",
-      "while :; do php /var/www/html/framework/cli-script.php dev/tasks/ProcessJobQueueTask queue=2 >> /var/log/php/queuedjob.log; php /var/www/html/framework/cli-script.php dev/tasks/ProcessJobQueueTask queue=3 >> /var/log/php/queuedjob.log; sleep 30; done"  
+      "while :; do php /var/www/html/${DOCKER_PROJECT_PATH} dev/tasks/ProcessJobQueueTask queue=2 >> /var/log/php/queuedjob.log; php /var/www/html/${DOCKER_PROJECT_PATH} dev/tasks/ProcessJobQueueTask queue=3 >> /var/log/php/queuedjob.log; sleep 30; done"
     ]
 ```
 
@@ -271,10 +312,10 @@ Injector:
 
 
 #### Import a database file
-`./dr.sh mysqlimport -u [USERNAME] -p[YOUR_PASSWORD] [DATABASE_NAME] < inputfile-on-host.sql`
+`./dr.sh mysqlimport -u[USERNAME] -p[YOUR_PASSWORD] [DATABASE_NAME] < inputfile-on-host.sql`
 
 E.g. I copy a *.sql file into the root of my project folder, run the following command, and then delete the *.sql file.
-`./dr.sh mysqlimport -u root -ppassword project-name < backup.sql`.
+`./dr.sh mysqlimport -uroot -ppassword db-name < backup.sql`.
 
 From the docker examples:
 
@@ -299,17 +340,17 @@ Enabling extensions and specific PHP config needs to be done as part of the rele
     image: "symbiote/php-fpm:7.1"
     volumes:
       - '.:/var/www/html'
-      - ~/docker/logs:/var/log/silverstripe
-    command: bash -c "docker-php-ext-enable xdebug && php-fpm"
+      - ~/docker-data/logs:/var/log/silverstripe
+    command: bash -c "${DOCKER_PHP_COMMAND} && php-fpm"
 ```
 
-The default `docker-compose.yml` file comes with this parameterised as `PHP_FPM_EXTENSIONS`, and can be set in your `.env` file. This also allows for the specification of specific PHP config options, for example to set `display_errors=On`.
+The default `docker-compose.yml` file comes with this parameterised as `DOCKER_PHP_COMMAND`, and can be set in your `.env` file. This also allows for the specification of specific PHP config options, for example to set `display_errors = On`.
 
 ```
-PHP_FPM_EXTENSIONS=docker-php-ext-enable xdebug && printf "display_errors=1" >> /usr/local/etc/php/php.ini &&
+DOCKER_PHP_COMMAND='docker-php-ext-enable xdebug && echo "display_errors = 1" >> /usr/local/etc/php/php.ini &&'
 ```
 
-Note: you'll need to destroy the containers (`docker-compose down` should do, otherwise `docker ps -a` and `docker rm {id}`).
+Note: you'll need to destroy the containers (`./du.sh -kr` should do, otherwise `docker ps -a` and `docker rm {id}`).
 
 #### XDebug configuration 
 
@@ -321,7 +362,7 @@ If using vscode, remember you'll need to set a `pathMapping` option in launch.js
 {
     "pathMappings": 
     { 
-      "/var/www/html": "${workspaceRoot}" 
+      "/var/www/html": "${workspaceFolder}" 
     }
 }
 ```
@@ -342,7 +383,7 @@ Or alternatively, user profile wide by changing user settings:
                 "request": "launch",
                 "port": 9000,
                 "pathMappings": {
-                    "/var/www/html": "${workspaceRoot}"
+                    "/var/www/html": "${workspaceFolder}"
                 }
             }
         ]

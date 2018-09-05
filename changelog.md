@@ -6,7 +6,36 @@ Please add newer logs above older logs. See bottom of file for template.
 
 ---
 
+## 0.1.1
+Author: JCarter
+
+#### Upgrading:
+
+- Add `DOCKER_CLISCRIPT_PATH` to your `docker.env`.
+- Replace `dr.sh`, `du.sh`, and `docker-compose.yml`.
+- Users may wish to rename their `~/docker` dir to `~/docker-data` to bring it inline with the new default.
+
+#### Updates:
+
+- Readme updated for this update.
+- Defined defaults in `dr.sh` for `DOCKER_YARN_PATH` and `DOCKER_CLISCRIPT_PATH`. There's no perfect solution here as cli path is used in docker-compose, but yarn path is not, etc.
+- A little formatting on the files, nothing that affects functionality.
+- Default shared dir changed to `docker-data` for clarity.
+
+#### Features:
+
+- Added `DOCKER_CLISCRIPT_PATH` for `docker.env` which is used by `dr.sh` to run `task`.
+- Added `task` action to `dr.sh` which lists available dev/tasks or runs a task if one is supplied.
+- Added `fpmreload` action to `dr.sh` which runs `kill -USR2 1` on the php container.
+- Added `DOCKER_SSH_VOLUME` for `.env` which is used by `docker-compose.yml` to mount ssh dir to phpcli container (needed for mac users). This has no effect for linux users.
+- Added `DOCKER_EXEC_IDS` for `.env` which is used by `dr.sh` to define the executing user (`uid:gid`) (needed for mac users). This has no effect for linux users.
+- Added `fixperms` action to `dr.sh` which sets permissions for all directories and files in `DOCKER_SHARED_PATH` and the project directory so that containers can rwx to them.
+- Added `DOCKER_COMPOSER_TIMEOUT` for `.env` which is used by `docker-compose.yml` to set the composer timeout. The composer default is 300, and so is the `du.sh` default.
+
+---
+
 ## 0.1.0
+Author: JCarter
 
 #### Upgrading:
 
@@ -84,7 +113,7 @@ Common uses:
 
 # TEMPLATE
 
-# x.x.x (tag here)
+## x.x.x (tag here)
 Author: Name
 
 #### Upgrading: (instruction on moving to this version)

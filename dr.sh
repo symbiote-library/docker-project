@@ -1,5 +1,11 @@
 #!/bin/sh
 
+#loads user env vars into this process
+ENV="./.env"
+if [ -e $ENV ]; then
+    . $ENV
+fi
+
 #loads docker env vars into this process
 DENV="./docker.env"
 if [ -e $DENV ]; then
@@ -8,7 +14,16 @@ fi
 
 #handle env vars
 if [ -z "$DOCKER_YARN_PATH" ]; then
-    DOCKER_YARN_PATH=""
+    DOCKER_YARN_PATH="themes/"
+fi
+if [ -z "$DOCKER_CLISCRIPT_PATH" ]; then
+    DOCKER_CLISCRIPT_PATH="framework/cli-script.php"
+fi
+if [ -z "$DOCKER_EXEC_IDS" ]; then
+    DOCKER_EXEC_IDS="`id -u`:`id -g`"
+fi
+if [ -z "$DOCKER_SHARED_PATH" ]; then
+    DOCKER_SHARED_PATH="~/docker-data"
 fi
 
 CMD=$1
@@ -39,9 +54,17 @@ in
         CONTAINER="phpcli"
         ACTION="vendor/bin/codecept"
         ;;
+    task) 
+        CONTAINER="phpcli"
+        ACTION="task"
+        ;;
     fpm) 
         CONTAINER="php"
         ACTION="bash"
+        ;;
+    fpmreload) 
+        CONTAINER="php"
+        ACTION="reload"
         ;;
     mysql) 
         CONTAINER="mysql"
@@ -63,6 +86,12 @@ in
         CONTAINER="node"
         ACTION="yarn"
         ;;
+    fixperms) 
+        ACTION="fixperms"
+        ;;
+    help) 
+        ACTION="help"
+        ;;
 esac
 
 case "$2"
@@ -75,33 +104,61 @@ in
         ;;
 esac
 
+# help action
+if [ $ACTION = "help" ]; then
+    echo "Usage: ./dr.sh <container> <action> [args]"
+    echo "       ./dr.sh <action> [args]"
+    echo ""
+    echo "<container> : { apache | adminer | php | phpcli | mysql | node | sel }"
+    echo "<arguments> : { cli | exec [args] | [args] }"
+    echo ""
+    echo "[args]      : free-form - will be passed as-is to the container"
+    echo ""
+    echo "commands    : { composer | sspak | phing | codecept | task | fpm"
+    echo "              | fpmreload | mysqlimport | yarn | fixperms | help }"
+    echo ""
+    echo "See the readme for more information:"
+    echo " - https://github.com/symbiote/docker-project/blob/master/readme.md"
+    exit 1;
+fi
+
+# fix perms action
+if [ $ACTION = "fixperms" ]; then
+    #get sudo perms
+    sudo echo "" > /dev/null
+    # set perms for project directory
+    echo "Fixing $PWD"
+    sudo chown -Rf `id -u`:1000 .
+    # get shared root (expanding '~')
+    SHARED=$(eval ls -d -- "$DOCKER_SHARED_PATH")
+    # shared perms are OS specific (to work around silly mac)
+    NOT_MAC=$(echo `uname -a` | grep "Darwin")
+    if [ -z "$NOT_MAC" ]; then
+        PERMS="775"
+    else
+        PERMS="777"
+    fi
+    # set blanket perms everything in shared
+    sudo chown -Rf 1000:33 $SHARED    
+    sudo chmod -Rf $PERMS $SHARED
+    # loop all dirs in shared
+    for DIR in $SHARED/*/; do
+        echo "Fixing $DIR"
+        # into dir
+        cd $DIR
+        # set perms for snowflake dirs 
+        sudo chown -Rf 999:999 mysql-data
+        sudo chown -Rf 8983:8983 solr-data solr-logs
+        sudo chmod -Rf 777 logs solr-logs
+        # back out
+        cd ..
+    done
+    exit 1;
+fi
+
+# check for container
 if [ $CONTAINER = "none" ]; then
-    echo "Usage: ./dr.sh container [arguments]"
-    echo "       ./dr.sh command"
-    echo "       ./dr.sh <args>"
-    echo ""
-    echo "container  : { apache | adminer | php | phpcli | mysql | node }"
-    echo "arguments  : { cli | exec [<args>] | [<args] }"
-    echo ""
-    echo "<args>     : free-form - will be passed as-is to the container"
-    echo ""
-    echo "commands   : { php | composer | sspak | phing | codecept | task | fpm"
-    echo "             | fpmreload | mysql | mysqlimport | sel | node | yarn }"
-    echo ""
-    echo "Command are just shortcuts:"
-    echo "php           = phpcli php"
-    echo "composer      = phpcli composer"
-    echo "sspak         = phpcli sspak"
-    echo "phing         = phpcli phing"
-    echo "codecept      = phpcli vendor/bin/codecept"
-    echo "task          = phpcli task"
-    echo "fpm           = php bash"
-    echo "fpmreload     = php reload"
-    echo "mysql         = mysql mysql"
-    echo "mysqlimport   = mysql mysql (with docker exec --interactive)"
-    echo "sel           = selenium"
-    echo "node          = node bash"
-    echo "yarn          = node yarn"
+    echo "Please provide a container or a command to be run. Use the 'dr.sh help' for more information." 
     exit 1;
 fi
 
@@ -116,26 +173,21 @@ CONTAINER_NAME=${CONTAINER_PREFIX}_${CONTAINER}_1
 
 if [ $ACTION = "cli" ]; then
     echo "Dropping to shell in $CONTAINER"
-    docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} /bin/bash
+    docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} /bin/bash
 elif [ $ACTION = "exec" ]; then
-    # double shift
-    shift
-    shift
-    echo "Execute bash wrapped command on $CONTAINER"
-    docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "$@"
+    echo "Execute bash wrapped command on $CONTAINER" && shift && shift    
+    docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "$@"
 else
-    shift
-    echo "Running command $ACTION in $CONTAINER"
-    if [ "mysqlimport" = $CMD ]; then
-        docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} "$@" < /proc/$$/fd/0
-    elif [ "yarn" = $CMD ]; then
-        if [ "$DOCKER_YARN_PATH" = "" ]; then
-            echo "Please add the DOCKER_YARN_PATH env var"
-            exit 1;
-        else
-            docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $@"
-        fi
+    echo "Running command $ACTION in $CONTAINER" && shift
+    if [ "yarn" = $CMD ]; then        
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $@"
+    elif [ "task" = $CMD ]; then
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "php $DOCKER_CLISCRIPT_PATH dev/tasks/$@"
+    elif [ "mysqlimport" = $CMD ]; then
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} ${ACTION} "$@" < /proc/$$/fd/0
+    elif [ "fpmreload" = $CMD ]; then
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} ${ACTION} bash -c kill -USR2 1
     else
-        docker exec ${RUN_OPTS} -u `id -u`:`id -g` ${CONTAINER_NAME} ${ACTION} "$@"
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} ${ACTION} "$@"
     fi
 fi
