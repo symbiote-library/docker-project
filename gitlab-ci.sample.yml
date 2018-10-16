@@ -1,0 +1,204 @@
+# .gitlab-ci.yml
+
+image: docker
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - distribute
+
+before_script:
+  - docker info
+  - docker --version
+  ## https://docs.gitlab.com/ee/ci/ssh_keys/
+  - 'which ssh-agent || (apk update && apk add --no-cache openssh-client )'
+  - apk add gettext
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - chmod +x dr.sh
+  - chmod +x du.sh
+  # Needed for envsubst support with yml config files
+  - export DOLLAR=$
+  - export GIT_COMMIT=${CI_COMMIT_SHA}
+  - export GIT_BRANCH=${CI_COMMIT_REF_SLUG}
+  - 'export DOCKER_SHARED_PATH="$(dirname ${CI_PROJECT_DIR})/${CI_COMMIT_REF_SLUG}-shared"'
+  # Clear data from previous build
+  - rm -rf ${DOCKER_SHARED_PATH}/mysql-data/* && rm -rf ${DOCKER_SHARED_PATH}/elastic-data/* && rm -rf ${DOCKER_SHARED_PATH}/logs/*
+  #
+  # CI Config
+  # - Configure everything here
+  #
+  # @CONFIG
+  - export CI_CONFIG_SS_VERSION=4
+  - export CI_CONFIG_CONTAINERS="apache php phpcli mysql selenium mailhog node elastic redis"
+  - export CI_CONFIG_SS_PROJECT_DIR="EDIT_THIS_PLEASE_eg_mysite"
+  - export CI_CONFIG_YARN_BUILD_ENABLED=1
+  - export CI_CONFIG_YARN_BUILD_DIR="themes/EDIT_THIS_PLEASE"
+  - export CI_CONFIG_TYPESCRIPT_COMPILE_CHECK=1
+  - export CI_CONFIG_TYPESCRIPT_FORMAT_CHECK=1
+  - export CI_CONFIG_TARBALL_TARGET=AWS_BUCKET
+  # NOTE(Jake): 2018-08-21
+  #
+  # Waiting on Marcus to get "sspak" to work then
+  # we can re-enable CI_CONFIG_CODECEPTION_ENABLED
+  #
+  - export CI_CONFIG_CODECEPTION_ENABLED=0
+  - export CI_CONFIG_SOLR_ENABLED=0
+  - export CI_CONFIG_ELASTIC_ENABLED=1
+  - export CI_CONFIG_SEARCH_INDEX_ENABLED=1
+  - export CI_CONFIG_PHPSTAN_ENABLED=0
+
+  # NOTE(Jake): 2018-08-06
+  #
+  # Related PR:
+  # - https://github.com/symbiote/silverstripe-base/pull/29
+  #
+  # This should be enabled if your projects "build.xml" file uses the
+  # following arguments when it does a `composer install`:
+  # - "composer install --prefer-dist --no-interaction --no-progress --no-suggest --optimize-autoloader --verbose --profile"
+  #
+  # If you set this to 1 and the --prefer-dist updates haven't been made to your build.xml file
+  # then `composer install` will use --prefer-source and be a lot slower. (as its cloning the entire repo, not the commit it needs)
+  #
+  # If you are unsure, the legacy/safe setting is to make this 0.
+  #
+  - export CI_CONFIG_BUILD_XML_DOES_COMPOSER_OPTIMIZE_AUTOLOADER=0
+  # Config error checking
+  - if [ ! -d "$CI_CONFIG_SS_PROJECT_DIR" ]; then echo "Cannot find CI_CONFIG_SS_PROJECT_DIR folder \"${CI_CONFIG_SS_PROJECT_DIR}\", You need to configure $CI_CONFIG_SS_PROJECT_DIR in .gitlab-ci.yml. ie. mysite"; exit 100; fi
+  - if [[ $CI_CONFIG_YARN_BUILD_ENABLED == 1 ] && [ ! -d "$CI_CONFIG_YARN_BUILD_DIR" ]]; then echo "Cannot find CI_CONFIG_YARN_BUILD_DIR folder \"${CI_CONFIG_YARN_BUILD_DIR}\", ie. themes/simple"; exit 101; fi
+  # For SOLR based projects
+  - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then mkdir -p ${DOCKER_SHARED_PATH}/solr-data; fi
+  - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then chown -R 8983:8983 ${DOCKER_SHARED_PATH}/solr-data; fi
+  - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then mkdir -p ${DOCKER_SHARED_PATH}/solr-logs; fi
+  - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then chown -R 8983:8983 ${DOCKER_SHARED_PATH}/solr-logs; fi
+  # For Elastic projects
+  - if [[ $CI_CONFIG_ELASTIC_ENABLED == 1 ]]; then mkdir -p ${DOCKER_SHARED_PATH}/elastic-data/nodes; chown -R 1000:1000 ${DOCKER_SHARED_PATH}/elastic-data/; fi
+
+  # Cleanup logging
+  - mkdir -p ${DOCKER_SHARED_PATH}/logs
+  - chown -R 1000:1000 ${DOCKER_SHARED_PATH}/logs
+  - rm -f mysite/*.log
+  - apk add --no-cache py-pip
+  # Setup directories
+  - mkdir -p silverstripe-cache/log
+  - if [[ $CI_CONFIG_CODECEPTION_ENABLED == 1 ]]; then mkdir silverstripe-cache/codecept_output; fi
+  - chown -R 1000:1000 silverstripe-cache
+
+Build project:
+  stage: build
+  artifacts:
+    when: always
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+    paths:
+      - build/*deploy*.tar.gz
+      - silverstripe-cache/log/
+      # we copy the raw codeception dir because that's where failed tests end up
+      # @CONFIG
+      - EDIT_THIS_PLEASE/codeception/tests/_output/
+    expire_in: 1 week
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - vendor/
+      # @CONFIG
+      - EDIT_THIS_PLEASE/node_modules/
+  script:
+    - pip install docker-compose
+    - ./du.sh
+    #- docker-compose up -d ${CI_CONFIG_CONTAINERS}
+    - ./dr.sh php exec "mkdir ~/.ssh; echo '$SSH_KNOWN_HOSTS' > ~/.ssh/known_hosts"
+    - ./dr.sh php exec "echo '$SSH_PRIVATE_KEY' > ~/.ssh/id_rsa; chmod 600 ~/.ssh/id_rsa"
+    - ./dr.sh php exec 'ssh-keyscan -t RSA github.com >> ~/.ssh/known_hosts'
+    - if [[ $CI_CONFIG_BUILD_XML_DOES_COMPOSER_OPTIMIZE_AUTOLOADER == 0 ]]; then ./dr.sh phing -Dcomposer_dist=True composer-install; fi
+    - if [[ $CI_CONFIG_BUILD_XML_DOES_COMPOSER_OPTIMIZE_AUTOLOADER == 1 ]]; then ./dr.sh phing -Dni_build=True composer-install; fi
+    - if [[ $CI_CONFIG_SS_VERSION == 4 ]]; then ./dr.sh composer vendor-expose; fi
+    # Start Solr _after_ the configs have been pulled in by Composer
+    - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then docker-compose up -d solr; fi
+    - if [[ $CI_CONFIG_YARN_BUILD_ENABLED == 1 ]]; then ./dr.sh yarn install; fi
+    - if [[ $CI_CONFIG_YARN_BUILD_ENABLED == 1 ]]; then ./dr.sh yarn build; fi
+    # NOTE(Jake): 2018-08-21
+    # To make sure this works as expected, ensure that no "scripts" are defined in themes/**/pacakge.json that are called "tsc" or "tsfmt".
+    # I had to rename a script for PTV-MPW from "tsc" to "tsc-watch".
+    - if [ "$CI_CONFIG_YARN_BUILD_ENABLED" -eq 1 ] && [ "$CI_CONFIG_TYPESCRIPT_COMPILE_CHECK" -eq 1 ]; then ./dr.sh yarn "run tsc --noEmit"; fi
+    - if [ "$CI_CONFIG_YARN_BUILD_ENABLED" -eq 1 ] && [ "$CI_CONFIG_TYPESCRIPT_FORMAT_CHECK" -eq 1 ]; then ./dr.sh yarn "run tsfmt --verify"; fi
+    # Run phing build
+    - ./dr.sh phing -Ddb.host="$(basename $(pwd))_mysql_1.$(basename $(pwd))_default" -Ddb.type="MySQLPDODatabase" -Ddb.user="root" -Ddb.pass="password" -Ddb.name="$(basename $(pwd))" -Dtesting.db.name="$(basename $(pwd))" build
+    - if [[ $CI_CONFIG_SS_VERSION == 3 ]]; then echo "increase_memory_limit_to('384M');" >> mysite/local.conf.php; fi
+    # Config updates steps if needed
+    - if [[ -f mysite/build/default_configs.sh ]]; then sh mysite/build/default_configs.sh; fi
+
+    # PHPStan - Static analysis of PHP files
+    #
+    # NOTE(Jake): 2018-08-23
+    # This was getting PHPStan errors that didn't line up with local/Jenkins, the solution
+    # was to clear/flush the silverstripe-cache before executing it.
+    #
+    - if [[ $CI_CONFIG_PHPSTAN_ENABLED == 1 ]]; then rm -rf silverstripe-cache/*; fi
+    - if [[ $CI_CONFIG_PHPSTAN_ENABLED == 1 ]]; then ./dr.sh phing phpstan; fi
+
+    # NOTE(Jake): 2018-08-06
+    #
+    # Legacy SilverStripe 3 needs to make "sake" executable as it's committed direct to the repo.
+    # In SilverStripe 4, sake is installed via composer and it's permissions are automatically corrected by Composer, AFAIK.
+    #
+    - if [[ $CI_CONFIG_SS_VERSION == 3 ]]; then chmod +x "framework/sake"; fi
+    - if [[ $CI_CONFIG_SS_VERSION == 3 ]]; then ./dr.sh php exec "framework/sake dev/tests/module/${CI_CONFIG_SS_PROJECT_DIR} flush=0 build=0 reporter=PHPUnit_Util_Log_JUnit"; fi
+    - if [[ $CI_CONFIG_SS_VERSION == 4 ]]; then ./dr.sh php vendor/bin/phpunit --log-junit test-assist/logs/testsuite.xml; fi
+    # PHPUnit - If all files exist in these test-assist/logs, move them to "silverstripe-cache/log"
+    - find test-assist/logs/ -name \*.* -exec cp {} silverstripe-cache/log \;
+
+    # Clear cache before next steps
+    - rm -rf silverstripe-cache/*
+
+    # SSPak'd projects
+    - if [[ -f mysite/build/site.sspak ]; then ./dr.sh sspak load ./mysite/build/site.sspak; fi
+
+    # Another SOLR specific config
+    - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then echo "SolrSearchService::\$solr_details = array('host' => 'solr','port' => '8983','context' => '/solr/project','data_dir' => null);" >> mysite/local.conf.php; fi
+
+    # SilverStripe
+    # - Run dev/build?flush=all, this will update the DB tables based on PHP code and generate the `silverstripe-cache` manifest.
+    - if [[ $CI_CONFIG_SS_VERSION == 3 ]]; then ./dr.sh php exec "framework/sake dev/build flush=1"; fi
+    - if [[ $CI_CONFIG_SS_VERSION == 4 ]]; then ./dr.sh php exec "vendor/bin/sake dev/build flush=1"; fi
+
+    # Another SOLR or ELASTIC step; expects your project to have one
+    # defined specifically to index just the things for testing
+    - if [ "$CI_CONFIG_SS_VERSION" -eq 3 ] && [ "$CI_CONFIG_SEARCH_INDEX_ENABLED" -eq 1 ]; then ./dr.sh php exec "framework/sake dev/tasks/IndexForTestTask"; fi
+    - if [ "$CI_CONFIG_SS_VERSION" -eq 4 ] && [ "$CI_CONFIG_SEARCH_INDEX_ENABLED" -eq 1 ]; then ./dr.sh php exec "vendor/bin/sake dev/tasks/IndexForTestTask"; fi
+
+    # Run Codeception
+    - if [[ $CI_CONFIG_CODECEPTION_ENABLED == 1 ]]; then ./dr.sh codecept --debug run --xml --html; fi
+
+    # More SOLR specific steps; prune solr package as it's not needed for deployments
+    - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then rm -rf solr/solr; fi
+    # this may be needed at the end of the line below?; mv build/*deploy*.tar.gz /tmp/build
+
+    # this may be needed at the end of the line below?; mv build/*deploy*.tar.gz /tmp/build
+    - ./dr.sh php exec "mkdir -p ~/.ssh; echo '$SSH_PRIVATE_KEY' > ~/.ssh/id_rsa; chmod 600 ~/.ssh/id_rsa; phing package"
+
+Distribute Packages:
+  stage: distribute
+  dependencies:
+    - Build project
+  script:
+    - pip install awscli
+    - export AWS_DEFAULT_REGION="ap-southeast-2"
+    - if [[ $CI_CONFIG_TARBALL_TARGET -ne "AWS_BUCKET"]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_PROJECT_NAME}/ ; fi
+    - if [[ $CI_CONFIG_TARBALL_TARGET -ne "AWS_BUCKET"]]; then aws s3 rm s3://${CI_CONFIG_TARBALL_TARGET}/ --exclude "*" --include '${PROJECT_NAME}/${CI_PROJECT_NAME}-*.${CI_COMMIT_REF_SLUG}.*' --recursive ; fi
+    - if [[ $CI_CONFIG_TARBALL_TARGET -ne "AWS_BUCKET"]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_PROJECT_NAME}/ ; fi
+
+after_script:
+  - export DOCKER_SHARED_PATH="$(dirname ${CI_PROJECT_DIR})/${CI_COMMIT_REF_SLUG}-shared"
+  # If *.log files exist in these directories, move them to "silverstripe-cache/log"
+  - find $DOCKER_SHARED_PATH/logs/ -name \*.log -exec cp {} silverstripe-cache/log \;
+  - find mysite/ -name \*.log -exec cp {} silverstripe-cache/log \;
+  - docker logs $(basename $(pwd))_php_1 > silverstripe-cache/log/phpfpm.log
+  # More SOLR settings
+  - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then docker logs $(basename $(pwd))_solr_1 > silverstripe-cache/log/solr.log; fi
+  - ./dr.sh php exec "[ -e ~/.ssh/id_rsa ] && rm ~/.ssh/id_rsa"
