@@ -189,9 +189,9 @@ Distribute Packages:
   script:
     - pip install awscli
     - export AWS_DEFAULT_REGION="ap-southeast-2"
-    - if [[ $CI_CONFIG_TARBALL_TARGET -ne "AWS_BUCKET"]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_PROJECT_NAME}/ ; fi
-    - if [[ $CI_CONFIG_TARBALL_TARGET -ne "AWS_BUCKET"]]; then aws s3 rm s3://${CI_CONFIG_TARBALL_TARGET}/ --exclude "*" --include '${PROJECT_NAME}/${CI_PROJECT_NAME}-*.${CI_COMMIT_REF_SLUG}.*' --recursive ; fi
-    - if [[ $CI_CONFIG_TARBALL_TARGET -ne "AWS_BUCKET"]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_PROJECT_NAME}/ ; fi
+    - if [[ $CI_CONFIG_TARBALL_TARGET != "AWS_BUCKET" ]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_PROJECT_NAME}/ ; fi
+    - if [[ $CI_CONFIG_TARBALL_TARGET != "AWS_BUCKET" ]]; then aws s3 rm s3://${CI_CONFIG_TARBALL_TARGET}/ --exclude "*" --include '${PROJECT_NAME}/${CI_PROJECT_NAME}-*.${CI_COMMIT_REF_SLUG}.*' --recursive ; fi
+    - if [[ $CI_CONFIG_TARBALL_TARGET != "AWS_BUCKET" ]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_PROJECT_NAME}/ ; fi
 
 after_script:
   - export DOCKER_SHARED_PATH="$(dirname ${CI_PROJECT_DIR})/${CI_COMMIT_REF_SLUG}-shared"
