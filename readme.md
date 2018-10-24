@@ -347,8 +347,10 @@ Enabling extensions and specific PHP config needs to be done as part of the rele
 The default `docker-compose.yml` file comes with this parameterised as `DOCKER_PHP_COMMAND`, and can be set in your `.env` file. This also allows for the specification of specific PHP config options, for example to set `display_errors = On`.
 Echoed lines must be wrapped in `'` single quotes and the entire string must be wrapped in `"` double quotes.
 
+A recommendation for development;
+
 ```
-DOCKER_PHP_COMMAND="docker-php-ext-enable xdebug && echo 'display_errors = 1' >> /usr/local/etc/php/php.ini &&"
+DOCKER_PHP_COMMAND="docker-php-ext-enable xdebug && echo 'display_errors = 1' >> /usr/local/etc/php/php.ini && echo 'error_reporting = E_ALL' >> /usr/local/etc/php/php.ini && "
 ```
 
 Note: YOu shopuld be able to `./du.sh` to apply the config but you may need to destroy the containers (`./du.sh -kr` should do, otherwise `docker ps -a` and `docker rm {id}`).
