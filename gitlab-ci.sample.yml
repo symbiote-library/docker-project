@@ -109,7 +109,7 @@ Build project:
       # @CONFIG
       - EDIT_THIS_PLEASE/node_modules/
   script:
-    - pip install docker-compose
+    - pip install docker-compose=1.22.0
     - ./du.sh
     #- docker-compose up -d ${CI_CONFIG_CONTAINERS}
     - ./dr.sh php exec "mkdir ~/.ssh; echo '$SSH_KNOWN_HOSTS' > ~/.ssh/known_hosts"
