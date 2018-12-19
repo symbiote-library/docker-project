@@ -28,8 +28,9 @@ before_script:
   - export GIT_COMMIT=${CI_COMMIT_SHA}
   - export GIT_BRANCH=${CI_COMMIT_REF_SLUG}
   - 'export DOCKER_SHARED_PATH="$(dirname ${CI_PROJECT_DIR})/${CI_COMMIT_REF_SLUG}-shared"'
+  - export DOCKER_PROJECT_PATH=${DOCKER_SHARED_PATH}/$(basename $(pwd))
   # Clear data from previous build
-  - rm -rf ${DOCKER_SHARED_PATH}/mysql-data/* && rm -rf ${DOCKER_SHARED_PATH}/elastic-data/* && rm -rf ${DOCKER_SHARED_PATH}/logs/*
+  - rm -rf ${DOCKER_PROJECT_PATH}/mysql-data/* && rm -rf ${DOCKER_PROJECT_PATH}/elastic-data/* && rm -rf ${DOCKER_PROJECT_PATH}/logs/*
   #
   # CI Config
   # - Configure everything here
