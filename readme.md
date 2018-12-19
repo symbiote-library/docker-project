@@ -20,10 +20,10 @@ Example config:
 ```
 DOCKER_CONTAINERS="apache php phpcli adminer mysql node"
 DOCKER_PHP_VERSION="7.1"
-DOCKER_MYSQL_VERSION="5.6"
+DOCKER_MYSQL_VERSION="5.7"
 DOCKER_NODE_VERSION="8.11"
-DOCKER_YARN_PATH="path/to/yarn/"
-DOCKER_CLISCRIPT_PATH="path/to/cli-script.php"
+DOCKER_YARN_PATH="themes/my-theme"
+DOCKER_CLISCRIPT_PATH="vendor/silverstripe/framework/cli-script.php"
 ```
 
 #### Step 3
