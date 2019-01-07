@@ -180,7 +180,7 @@ elif [ $ACTION = "exec" ]; then
 else
     echo "Running command $ACTION in $CONTAINER" && shift
     if [ "yarn" = $CMD ]; then        
-        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $@"
+        docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $*"
     elif [ "task" = $CMD ]; then
         docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "php $DOCKER_CLISCRIPT_PATH dev/tasks/$@"
     elif [ "mysqlimport" = $CMD ]; then
