@@ -1,0 +1,5 @@
+version: "3"
+services:
+  php-fpm:
+    image: symbiote/php-fpm:7.1-alpine
+    build: .
