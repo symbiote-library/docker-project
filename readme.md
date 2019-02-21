@@ -439,3 +439,8 @@ Create a "docker" directory under your project. Add the following `build` config
 ## Troubleshooting
 
 Before `docker-compose down`, make sure to run `docker logs my_container_number` to get the most recent dump of data from the containers.
+
+### Solr
+
+- If it's starting the container, but a `docker ps` doesn't show the container, make sure you run `./dr.sh fixperms` and then try again. Hitting `http://localhost:8983/solr/` should let you know this is working.
+- The following configuration is needed to actually start indexing things, so make sure it's present if you're seeing connection errors https://github.com/symbiote/docker-project/blob/4925b8ed587eda388d1a910c646e22362a1b83ce/gitlab-ci.sample.yml#L164.
