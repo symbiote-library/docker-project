@@ -353,7 +353,7 @@ A recommendation for development;
 DOCKER_PHP_COMMAND="docker-php-ext-enable xdebug && echo 'display_errors = 1' >> /usr/local/etc/php/php.ini && echo 'error_reporting = E_ALL' >> /usr/local/etc/php/php.ini && "
 ```
 
-Note: YOu shopuld be able to `./du.sh` to apply the config but you may need to destroy the containers (`./du.sh -kr` should do, otherwise `docker ps -a` and `docker rm {id}`).
+Note: You should be able to just run `./du.sh` to apply the config but you may need to destroy the containers (`./du.sh -kr` should do it, otherwise `docker ps -a` and `docker rm {id}`).
 
 #### XDebug configuration 
 
