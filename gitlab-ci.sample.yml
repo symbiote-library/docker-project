@@ -134,13 +134,16 @@ Build project:
     # Config updates steps if needed
     - if [[ -f mysite/build/default_configs.sh ]]; then sh mysite/build/default_configs.sh; fi
 
+    # We kill cache regardless because the build below is done with all the test classes
+    # too
+    - rm -rf silverstripe-cache/*
+
     # PHPStan - Static analysis of PHP files
     #
     # NOTE(Jake): 2018-08-23
     # This was getting PHPStan errors that didn't line up with local/Jenkins, the solution
     # was to clear/flush the silverstripe-cache before executing it.
     #
-    - if [[ $CI_CONFIG_PHPSTAN_ENABLED == 1 ]]; then rm -rf silverstripe-cache/*; fi
     - if [[ $CI_CONFIG_PHPSTAN_ENABLED == 1 ]]; then ./dr.sh phing phpstan; fi
 
     # NOTE(Jake): 2018-08-06
@@ -150,15 +153,13 @@ Build project:
     #
     - if [[ $CI_CONFIG_SS_VERSION == 3 ]]; then chmod +x "framework/sake"; fi
     - if [[ $CI_CONFIG_SS_VERSION == 3 ]]; then ./dr.sh php exec "framework/sake dev/tests/module/${CI_CONFIG_SS_PROJECT_DIR} flush=0 build=0 reporter=PHPUnit_Util_Log_JUnit"; fi
-    - if [[ $CI_CONFIG_SS_VERSION == 4 ]]; then ./dr.sh php vendor/bin/phpunit --log-junit test-assist/logs/testsuite.xml; fi
-    # PHPUnit - If all files exist in these test-assist/logs, move them to "silverstripe-cache/log"
-    - find test-assist/logs/ -name \*.* -exec cp {} silverstripe-cache/log \;
+    - if [[ $CI_CONFIG_SS_VERSION == 4 ]]; then ./dr.sh php vendor/bin/phpunit --log-junit test-assist/logs/testsuite.xml --testdox-html test-assist/logs/testsuite.html; fi
 
     # Clear cache before next steps
     - rm -rf silverstripe-cache/*
 
     # SSPak'd projects
-    - if [[ -f mysite/build/site.sspak ]; then ./dr.sh sspak load ./mysite/build/site.sspak; fi
+    - if [[ -f mysite/build/site.sspak ]]; then ./dr.sh sspak load ./mysite/build/site.sspak; fi
 
     # Another SOLR specific config
     - if [[ $CI_CONFIG_SOLR_ENABLED == 1 ]]; then echo "SolrSearchService::\$solr_details = array('host' => 'solr','port' => '8983','context' => '/solr/project','data_dir' => null);" >> mysite/local.conf.php; fi
@@ -196,6 +197,9 @@ Distribute Packages:
 
 after_script:
   - export DOCKER_SHARED_PATH="$(dirname ${CI_PROJECT_DIR})/${CI_COMMIT_REF_SLUG}-shared"
+  - mkdir -p silverstripe-cache/log
+  # PHPUnit - If all files exist in these test-assist/logs, move them to "silverstripe-cache/log"
+  - find test-assist/logs/ -name \*.* -exec cp {} silverstripe-cache/log \;
   # If *.log files exist in these directories, move them to "silverstripe-cache/log"
   - find $DOCKER_SHARED_PATH/logs/ -name \*.log -exec cp {} silverstripe-cache/log \;
   - find mysite/ -name \*.log -exec cp {} silverstripe-cache/log \;
