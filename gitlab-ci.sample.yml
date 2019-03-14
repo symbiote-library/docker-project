@@ -54,6 +54,8 @@ before_script:
   - export CI_CONFIG_ELASTIC_ENABLED=1
   - export CI_CONFIG_SEARCH_INDEX_ENABLED=1
   - export CI_CONFIG_PHPSTAN_ENABLED=0
+  - apk add --no-cache libxml2-utils
+  - export CI_CONFIG_BUILD_PROJECT=$(xmllint --xpath 'string(/project/@name)' build.xml)
 
   # NOTE(Jake): 2018-08-06
   #
@@ -190,9 +192,9 @@ Distribute Packages:
   script:
     - pip install awscli
     - export AWS_DEFAULT_REGION="ap-southeast-2"
-    - if [[ $CI_CONFIG_TARBALL_TARGET != "AWS_BUCKET" ]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_PROJECT_NAME}/ ; fi
+    - if [[ $CI_CONFIG_TARBALL_TARGET != "AWS_BUCKET" ]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_CONFIG_BUILD_PROJECT}/ ; fi
     - if [[ $CI_CONFIG_TARBALL_TARGET != "AWS_BUCKET" ]]; then aws s3 rm s3://${CI_CONFIG_TARBALL_TARGET}/ --exclude "*" --include '${PROJECT_NAME}/${CI_PROJECT_NAME}-*.${CI_COMMIT_REF_SLUG}.*' --recursive ; fi
-    - if [[ $CI_CONFIG_TARBALL_TARGET != "AWS_BUCKET" ]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_PROJECT_NAME}/ ; fi
+    - if [[ $CI_CONFIG_TARBALL_TARGET != "AWS_BUCKET" ]]; then aws s3 cp build/*.tar.gz s3://${CI_CONFIG_TARBALL_TARGET}/${CI_CONFIG_BUILD_PROJECT}/ ; fi
 
 after_script:
   - export DOCKER_SHARED_PATH="$(dirname ${CI_PROJECT_DIR})/${CI_COMMIT_REF_SLUG}-shared"
