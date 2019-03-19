@@ -44,7 +44,7 @@ services:
     tty: true
     working_dir: /var/www/html
     environment:
-      SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
+      SSH_AUTH_SOCK: "/tmp/ssh_agent_socket"
       GIT_COMMIT: ${CI_COMMIT_SHA}
       GIT_BRANCH: ${CI_COMMIT_REF_SLUG}
       COMPOSER_PROCESS_TIMEOUT: ${DOCKER_COMPOSER_TIMEOUT}
@@ -53,7 +53,7 @@ services:
       - ${DOCKER_SHARED_PATH}/composer-cache:/usr/local/composer/cache
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/php
       - ${DOCKER_PROJECT_PATH}/logs:/var/log/silverstripe
-      - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
+      - $SSH_AUTH_SOCK:/tmp/ssh_agent_socket
       - ${DOCKER_SSH_VOLUME}
     command: ["/bin/bash"]
 

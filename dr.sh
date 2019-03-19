@@ -30,7 +30,7 @@ CMD=$1
 CONTAINER="none"
 ACTION="pass"
 RUN_OPTS="-it"
-CONTAINER_PREFIX=$(basename $(pwd))
+CONTAINER_PREFIX=$(basename "$(pwd)")
 
 case "$CMD"
 in
