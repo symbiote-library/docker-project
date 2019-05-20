@@ -1,6 +1,6 @@
 #!/bin/sh
 
-docker build -t symbiote/node:8.11 .
+docker build -t symbiote/node:10.15 ./10.15/
 
 # and the latest tag also
-docker build -t symbiote/node .
+docker build -t symbiote/node ./10.15/

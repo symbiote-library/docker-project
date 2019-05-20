@@ -2,7 +2,7 @@
 
 ## Build
 
-`docker build -t symbiote/node .`
+`docker build -t symbiote/node ./10.15/`
 
 ## Run
 
