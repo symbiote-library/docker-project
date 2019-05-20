@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build -t symbiote/selenium-chrome:2.53.1  . 
+docker build -t symbiote/selenium-chrome:3.141.59  . 
