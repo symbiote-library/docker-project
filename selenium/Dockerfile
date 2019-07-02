@@ -4,6 +4,7 @@ USER root
 
 RUN apt-get update && apt-get install -y \
 	inetutils-ping \
+    iproute2 \
 	knot-dnsutils \
     libosmesa6 \
     libosmesa6-dev \
@@ -21,6 +22,9 @@ ADD entry_point.sh /opt/bin/entry_point.sh
 
 ADD initialise.sh /tmp/init.sh
 
-RUN chmod +x /tmp/init.sh && chmod +x /opt/bin/entry_point.sh
+COPY start-selenium-standalone.sh /opt/bin/start-selenium-standalone.sh
+COPY selenium.conf /etc/supervisor/conf.d/
+
+RUN chmod +x /tmp/init.sh && chmod +x /opt/bin/entry_point.sh && chmod +x /opt/bin/start-selenium-standalone.sh
 
 ENTRYPOINT ["/tmp/init.sh"]
