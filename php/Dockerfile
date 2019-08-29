@@ -3,8 +3,7 @@ FROM php:7.1-fpm
 RUN usermod -u 1000 www-data
 
 
-RUN echo "deb http://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages debian main" > /etc/apt/sources.list.d/tideways.list \
-  && apt-get update \
+RUN apt-get update \
 	&& apt-get install -my gnupg \
   && curl --silent -o- https://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages/EEB5E8F4.gpg | apt-key add - \
 	&&  apt-get install -y --allow-unauthenticated \
@@ -18,11 +17,17 @@ RUN echo "deb http://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages debian m
       libxslt1-dev \
       libxslt1.1 \
       ssmtp \
-      tideways-daemon \
-      tideways-php \
-      tideways-cli \
-  && rm -rf /var/lib/apt/lists/* \
-  && cp /usr/lib/tideways/tideways.ini /usr/local/etc/php/conf.d/
+    #   tideways-daemon \
+    #   tideways-php \
+    #   tideways-cli \
+    #   tideways-xhprof \
+  && rm -rf /var/lib/apt/lists/* 
+#   && cp /usr/lib/tideways/tideways.ini /usr/local/etc/php/conf.d/
+
+RUN cd /tmp && mkdir tideways && cd tideways && curl https://codeload.github.com/tideways/php-xhprof-extension/tar.gz/v4.1.2 > tideways.tgz \
+    && tar zxf tideways.tgz && cd php-xhprof-extension-4.1.2 \ 
+    && phpize && ./configure && make && make install
+  
 
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install \
@@ -37,6 +42,7 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
       pdo_mysql \
       intl \
       zip \
+      soap \
     && pecl install redis-4.0.2 \
     && pecl install xdebug \
     && docker-php-ext-enable \
