@@ -7,7 +7,7 @@ RUN apt-get update \
 	&& apt-get install -my gnupg \
   && curl --silent -o- https://s3-eu-west-1.amazonaws.com/qafoo-profiler/packages/EEB5E8F4.gpg | apt-key add - \
 	&&  apt-get install -y --allow-unauthenticated \
-      mysql-client \
+      mariadb-client \
       libtidy-dev \
       libpng-dev \
       libjpeg62-turbo-dev \
@@ -21,13 +21,13 @@ RUN apt-get update \
     #   tideways-php \
     #   tideways-cli \
     #   tideways-xhprof \
-  && rm -rf /var/lib/apt/lists/* 
+  && rm -rf /var/lib/apt/lists/*
 #   && cp /usr/lib/tideways/tideways.ini /usr/local/etc/php/conf.d/
 
 RUN cd /tmp && mkdir tideways && cd tideways && curl https://codeload.github.com/tideways/php-xhprof-extension/tar.gz/v4.1.2 > tideways.tgz \
-    && tar zxf tideways.tgz && cd php-xhprof-extension-4.1.2 \ 
+    && tar zxf tideways.tgz && cd php-xhprof-extension-4.1.2 \
     && phpize && ./configure && make && make install
-  
+
 
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install \
@@ -55,7 +55,7 @@ RUN echo '[Date]\ndate.timezone = "Australia/Melbourne"' >> /usr/local/etc/php/c
     && echo "sendmail_path = /usr/sbin/ssmtp -t" > /usr/local/etc/php/conf.d/sendmail.ini \
     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && mkdir -p /var/log/php \
-    && chown www-data /var/log/php 
+    && chown www-data /var/log/php
 
 COPY php.ini /usr/local/etc/php/php.ini
 COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
