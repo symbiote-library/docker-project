@@ -27,16 +27,16 @@ while getopts 'skrpc' flag; do
     esac
 done
 
-#loads user env vars into this process
-ENV="./.env"
-if [ -e $ENV ]; then
-    . $ENV
-fi
-
 #loads docker env vars into this process
 DENV="./docker.env"
 if [ -e $DENV ]; then
     . $DENV
+fi
+
+#loads user env vars into this process
+ENV="./.env"
+if [ -e $ENV ]; then
+    . $ENV
 fi
 
 #set default for undefined vars
@@ -78,7 +78,7 @@ if [ -z "$DOCKER_COMPOSER_TIMEOUT" ]; then
 fi
 
 #handle solr dir/perms
-case "$CONTAINERS" in 
+case "$CONTAINERS" in
     *solr*)
         if [ -d ${DOCKER_PROJECT_PATH}/solr-data ]; then
             echo "Solr data dir found, if solr does _NOT_ start, please sudo chown 8983:8983 ${DOCKER_SHARED_PATH}/solr-data"

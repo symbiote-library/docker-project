@@ -1,15 +1,15 @@
 #!/bin/sh
 
-#loads user env vars into this process
-ENV="./.env"
-if [ -e $ENV ]; then
-    . $ENV
-fi
-
 #loads docker env vars into this process
 DENV="./docker.env"
 if [ -e $DENV ]; then
     . $DENV
+fi
+
+#loads user env vars into this process
+ENV="./.env"
+if [ -e $ENV ]; then
+    . $ENV
 fi
 
 #handle env vars
@@ -34,7 +34,7 @@ CONTAINER_PREFIX=$(basename "$(pwd)")
 
 case "$CMD"
 in
-    php) 
+    php)
         CONTAINER="phpcli"
         ACTION="php"
         ;;
@@ -50,23 +50,23 @@ in
         CONTAINER="phpcli"
         ACTION="phing"
         ;;
-    codecept) 
+    codecept)
         CONTAINER="phpcli"
         ACTION="vendor/bin/codecept"
         ;;
-    task) 
+    task)
         CONTAINER="phpcli"
         ACTION="task"
         ;;
-    fpm) 
+    fpm)
         CONTAINER="php"
         ACTION="bash"
         ;;
-    fpmreload) 
+    fpmreload)
         CONTAINER="php"
         ACTION="reload"
         ;;
-    mysql) 
+    mysql)
         CONTAINER="mysql"
         ACTION="mysql"
         ;;
@@ -75,31 +75,31 @@ in
         ACTION="mysql"
         RUN_OPTS="-i"
         ;;
-    sel) 
+    sel)
         CONTAINER="selenium"
         ;;
-    node) 
+    node)
         CONTAINER="node"
         ACTION="bash"
         ;;
-    yarn) 
+    yarn)
         CONTAINER="node"
         ACTION="yarn"
         ;;
-    fixperms) 
+    fixperms)
         ACTION="fixperms"
         ;;
-    help) 
+    help)
         ACTION="help"
         ;;
 esac
 
 case "$2"
 in
-    cli) 
+    cli)
         ACTION="cli"
         ;;
-    exec) 
+    exec)
         ACTION="exec"
         ;;
 esac
@@ -139,14 +139,14 @@ if [ $ACTION = "fixperms" ]; then
         PERMS="777"
     fi
     # set blanket perms everything in shared
-    sudo chown -Rf 1000:33 $SHARED    
+    sudo chown -Rf 1000:33 $SHARED
     sudo chmod -Rf $PERMS $SHARED
     # loop all dirs in shared
     for DIR in $SHARED/*/; do
         echo "Fixing $DIR"
         # into dir
         cd $DIR
-        # set perms for snowflake dirs 
+        # set perms for snowflake dirs
         sudo chown -Rf 999:999 mysql-data
         sudo chown -Rf 8983:8983 solr-data solr-logs
         sudo chmod -Rf 777 logs solr-logs
@@ -158,7 +158,7 @@ fi
 
 # check for container
 if [ $CONTAINER = "none" ]; then
-    echo "Please provide a container or a command to be run. Use the 'dr.sh help' for more information." 
+    echo "Please provide a container or a command to be run. Use the 'dr.sh help' for more information."
     exit 1;
 fi
 
@@ -175,11 +175,11 @@ if [ $ACTION = "cli" ]; then
     echo "Dropping to shell in $CONTAINER"
     docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} /bin/bash
 elif [ $ACTION = "exec" ]; then
-    echo "Execute bash wrapped command on $CONTAINER" && shift && shift    
+    echo "Execute bash wrapped command on $CONTAINER" && shift && shift
     docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "$@"
 else
     echo "Running command $ACTION in $CONTAINER" && shift
-    if [ "yarn" = $CMD ]; then        
+    if [ "yarn" = $CMD ]; then
         docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "cd $DOCKER_YARN_PATH; yarn $*"
     elif [ "task" = $CMD ]; then
         docker exec ${RUN_OPTS} -u ${DOCKER_EXEC_IDS} ${CONTAINER_NAME} bash -c "php $DOCKER_CLISCRIPT_PATH dev/tasks/$@"
