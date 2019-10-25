@@ -127,6 +127,7 @@ services:
       - "http.host=0.0.0.0"
       - "transport.host=127.0.0.1"
       - "xpack.security.enabled=false"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
       - ${DOCKER_PROJECT_PATH}/elastic-data:/usr/share/elasticsearch/data
 
