@@ -1,0 +1,5 @@
+version: "3"
+services:
+  php-cli:
+    image: hub.symbiote.com.au/symbiote/php-cli:7.3-alpine
+    build: .
