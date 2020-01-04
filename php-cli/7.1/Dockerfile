@@ -1,6 +1,7 @@
-FROM symbiote/php-fpm:7.3
+FROM symbiote/php-fpm:7.1
 
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y \
+    git
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME "/usr/local/composer" 
@@ -9,7 +10,7 @@ ENV PATH "${COMPOSER_HOME}/vendor/bin:${PATH}"
 
 RUN mkdir -p $COMPOSER_HOME \
 	&& php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \ 
-  && php -r "if (hash_file('sha384', 'composer-setup.php') === 'baf1608c33254d00611ac1705c1d9958c817a1a33bce370c0595974b342601bd80b92a3f46067da89e3b06bff421f182') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \ 
+  && php -r "if (hash_file('sha384', 'composer-setup.php') === '93b54496392c062774670ac18b134c3b3a95e5a5e5c8f1a9f115f203b75bf9a129d5daa8ba6a13e2cc8a1da0806388a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \ 
   && php composer-setup.php --install-dir /usr/bin --filename=composer \ 
   && php -r "unlink('composer-setup.php');"
 
