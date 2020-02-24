@@ -1,6 +1,6 @@
 # Symbiote PHP project docker
 
-A collection of docker containers used by a single web project. Tailored to suit SilverStripe applications, but usable by other PHP apps. 
+A collection of docker containers used by a single web project. Tailored to suit SilverStripe applications, but usable by other PHP apps.
 
 ## Running
 
@@ -28,7 +28,7 @@ DOCKER_CLISCRIPT_PATH="vendor/silverstripe/framework/cli-script.php"
 
 #### Step 3
 
-Run `./du.sh` to create/start the chosen set of containers. 
+Run `./du.sh` to create/start the chosen set of containers.
 
 There are several flags you can give to du.sh to perform additional functionality:
 
@@ -65,7 +65,7 @@ Common uses:
 
 ## Containers
 
-The following can be included as needed in the `./du.sh` script.  
+The following can be included as needed in the `./du.sh` script.
 
 * __apache__: apache 2 connecting to FPM  (*symbiote/apache2*).
 * __phpfpm__: PHP 7.1 and 5.6 (*symbiote/php-fpm:5.6* or *symbiote/php-fpm:7.1*).
@@ -81,7 +81,7 @@ The following can be included as needed in the `./du.sh` script.
 * __selenium__: remaps requests to symlocal back to the webserver container.
 * __mailhog__: mail capture, web interface. Available on `localhost:8025`.
 
-Note for those containers below that have different versions, simply change the docker-compose file 
+Note for those containers below that have different versions, simply change the docker-compose file
 to reference the older version where needed.
 
 ## Environment variables
@@ -165,27 +165,27 @@ See `dr.sh` for more details.
 
 #### Arguments:
 
-Any extra arguments are passed through to the relevant container / execution statement, e.g. 
+Any extra arguments are passed through to the relevant container / execution statement, e.g.
 
 `./dr.sh composer update package/name`
 
-will run the `composer update package/name` command directly in the php container. 
+will run the `composer update package/name` command directly in the php container.
 
 If the action passed is "cli", you will be dropped to a bash shell inside the given container, e.g.
 
-`./dr.sh php cli` 
+`./dr.sh php cli`
 
-will give you a bash shell inside that container, but no arguments are passed. 
+will give you a bash shell inside that container, but no arguments are passed.
 
 For the `exec` action, you can execute arbitrary executables inside the named container, e.g.
 
-`./dr.sh php exec "ls -l"` 
+`./dr.sh php exec "ls -l"`
 
-will output the `ls -l` result to screen. 
+will output the `ls -l` result to screen.
 
 #### A little more detail:
 
-Some commands can be run by executing containers in isolation, but as they're likely to touch on services defined in docker compose, you'll more often than not choose to execute them in context of a running docker-compose session. 
+Some commands can be run by executing containers in isolation, but as they're likely to touch on services defined in docker compose, you'll more often than not choose to execute them in context of a running docker-compose session.
 
 E.g.
 
@@ -197,7 +197,7 @@ E.g.
 
 * ``docker run --rm -it --network project_default -v $(pwd):/tmp -w /tmp -u `id -u`:`id -g` symbiote/php-cli:5.6 phing``
 
-Note that in the first example, the execution occurs in the context of the mounted volumes specified in docker-compose; the second allows you to execute in _any_ location by mounting the current directory. For the second you must know the name of the network; for most cases, this will be something like {project_dir_name}_default 
+Note that in the first example, the execution occurs in the context of the mounted volumes specified in docker-compose; the second allows you to execute in _any_ location by mounting the current directory. For the second you must know the name of the network; for most cases, this will be something like {project_dir_name}_default
 
 ## Handy commands
 
@@ -211,7 +211,7 @@ Note that in the first example, the execution occurs in the context of the mount
 
 #### SSPak
 
-The PHP CLI container bundles the `sspak` utility for packing and unpacking SilverStripe CMS sites. 
+The PHP CLI container bundles the `sspak` utility for packing and unpacking SilverStripe CMS sites.
 
 #### Node
 
@@ -235,7 +235,7 @@ The following binaries are available in the node environment:
 `./dr.sh yarn [other-arguments]``
 
 Note that the first time you run this in a project, you'll be prompted to update dr.sh with a directory containing
-the yarn package.json. 
+the yarn package.json.
 
 ``docker exec -it -u `id -u`:`id -g` {project}_node_1 bash -c "cd themes/site-theme && yarn install && yarn start"``
 
@@ -243,7 +243,7 @@ Optionally, you can set up your docker-compose with a command like the following
 
 ```
 services:
-  node: 
+  node:
     etc: as_per_default_config
     command: bash -c "cd ${DOCKER_YARN_PATH} && yarn install && yarn start"
 ```
@@ -262,14 +262,14 @@ Or manually:
 
 To use it, just add "queuedjobs" to the list of containers in `docker.env`.
 
-The base docker-compose file contains a container definition for running queuedjobs. In short, this creates an instance of the PHP CLI container, then runs a bash script that will execute the job queue task every 30 seconds for as long as the container exists. 
+The base docker-compose file contains a container definition for running queuedjobs. In short, this creates an instance of the PHP CLI container, then runs a bash script that will execute the job queue task every 30 seconds for as long as the container exists.
 
 **Note:** You will need to set the `DOCKER_CLISCRIPT_PATH` env var in `docker.env` (pointint to silverstipe's `cli-script.php`).
 
 ```
 queuedjobs:
     image: "symbiote/php-cli:5.6"
-    # other things left out for brevity ... 
+    # other things left out for brevity ...
     command: [
       "/bin/bash",
       "-c",
@@ -279,7 +279,7 @@ queuedjobs:
 
 #### Running SQS tasks from a container for a SilverStripe project
 
-To use it: 
+To use it:
 
 * add "sqsrunner" to the list of containers in `./du.sh`.
 * Make sure your project is configured to use the FileBasedSqsQueue for local development via yml config (see below).
@@ -355,47 +355,34 @@ DOCKER_PHP_COMMAND="docker-php-ext-enable xdebug && echo 'display_errors = 1' >>
 
 Note: You should be able to just run `./du.sh` to apply the config but you may need to destroy the containers (`./du.sh -kr` should do it, otherwise `docker ps -a` and `docker rm {id}`).
 
-#### XDebug configuration 
+#### XDebug configuration
 
-The default XDebug configuration has remote autostart = 1. Note that _if_ you're planning to run a production image, ensure it is created after starting _without_ the debug enable options highlighted above, so that debugging is _not_ a thing that is startable by default on production. 
-
-If using vscode, remember you'll need to set a `pathMapping` option in launch.json
+The default XDebug configuration has:
 
 ```
-{
-    "pathMappings": 
-    { 
-      "/var/www/html": "${workspaceFolder}" 
-    }
-}
+xdebug.remote_enable=on
+xdebug.remote_autostart=on
+xdebug.remote_connect_back=on
+xdebug.remote_handler=dbgp
+xdebug.remote_host=host.docker.internal
+xdebug.remote_port=9000
+xdebug.idekey=VSCODE
 ```
 
-Or alternatively, user profile wide by changing user settings:
+Notes:
 
-```
-{
-  "launch": {
-        // Use IntelliSense to learn about possible attributes.
-        // Hover to view descriptions of existing attributes.
-        // For more information, visit: https://go.microsoft.cmo/fwlink/?linkid=830387
-        "version": "0.2.0",
-        "configurations": [
-            {
-                "name": "Listen for XDebug",
-                "type": "php",
-                "request": "launch",
-                "port": 9000,
-                "pathMappings": {
-                    "/var/www/html": "${workspaceFolder}"
-                }
-            }
-        ]
-    }
-}
-```
-
-Note that XDebug is configured to automatically start, so once enabled via docker compose, it _will_ attempt
-to connect back to your IDE. 
+- _if_ you're planning to run a **production** image, ensure it is created _without_ `remote_enable=on`, so that debugging is _not_ startable by default on production.
+- By default XDebug is configured to automatically start, so once enabled via docker compose, it _will_ attempt to connect back to your IDE.
+- You may need to change `idekey=VSCODE` as to cater for your IDE.
+- If using vscode, remember you'll need to set a `pathMapping` option in launch.json
+  ```
+  {
+      "pathMappings":
+      {
+        "/var/www/html": "${workspaceFolder}"
+      }
+  }
+  ```
 
 [//]: # (After starting the debugger in your IDE, you'll need to open your browser using a URL parameter as xdebug is _not_ configured for auto-run, eg)
 [//]: # (https://mysite.symlocal/?XDEBUG_SESSION_START=1)
@@ -405,11 +392,11 @@ to connect back to your IDE.
 Contains Docker file definitions for
 
 * Apache2
-* PHP FPM 
+* PHP FPM
 * Selenium
 * Node (in particular, yarn toolset)
 
-Apache2 is built from a base ubuntu 16.04, rather than library/httpd. This maintains consistency with Symbiote's standard environment configuration. 
+Apache2 is built from a base ubuntu 16.04, rather than library/httpd. This maintains consistency with Symbiote's standard environment configuration.
 
 Each sub-folder contains their own specific dockerfile definitions.
 
@@ -417,7 +404,7 @@ Built images can then be pushed to docker-hub; please speak to marcus@symbiote.c
 
 The recommended docker-compose structure uses the above, as well as references to the following from upstream docker repositories:
 
-* MySQL 
+* MySQL
 * mailhog
 * Adminer
 * Elastic Search
@@ -430,7 +417,7 @@ Create a "docker" directory under your project. Add the following `build` config
 
 ```
   php:
-    build: 
+    build:
       context: ./docker
       dockerfile: Dockerfile.php
     image: "symbiote/{project-name}-php-fpm:7.1"
