@@ -1,5 +1,5 @@
 version: "3"
 services:
   httpd:
-    image: hub.symbiote.com.au/symbiote/httpd:2.4.38-alpine
+    image: symbiote/httpd:2.4.38-alpine
     build: .
