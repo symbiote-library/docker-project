@@ -37,7 +37,7 @@ RUN apk add --no-cache --virtual .build-deps \
       xsl \
       zip \
     && pecl install redis-4.0.1 \
-    #&& pecl install xdebug
+    && pecl install xdebug \
     && docker-php-ext-enable \
       redis \
     && apk del .build-deps
@@ -52,3 +52,4 @@ RUN echo $'[Date]\ndate.timezone = "Australia/Melbourne"' >> /usr/local/etc/php/
     && chown www-data /var/log/php
 
 COPY php.ini /usr/local/etc/php/php.ini
+COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
