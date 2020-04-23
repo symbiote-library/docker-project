@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:7.3-fpm
 
 RUN usermod -u 1000 www-data
 
@@ -20,10 +20,9 @@ RUN apt-get update \
       libxslt1-dev \
       libxslt1.1 \
       msmtp \
-      libonig-dev \
   && rm -rf /var/lib/apt/lists/* 
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install \
 			sockets \
       gd \
@@ -37,7 +36,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
       zip \
       soap \
     && pecl install redis-4.0.2 \
-    && pecl install mcrypt-1.0.3 \
+    && pecl install mcrypt-1.0.2 \
     && pecl install xdebug \
     && docker-php-ext-enable redis \
     && docker-php-ext-enable mcrypt 
