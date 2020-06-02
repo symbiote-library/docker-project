@@ -1,0 +1,5 @@
+version: "3"
+services:
+  httpd:
+    image: symbiote/httpd:2.4.38-alpine
+    build: .

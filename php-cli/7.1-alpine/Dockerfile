@@ -1,6 +1,9 @@
-FROM symbiote/php-fpm:7.3
+FROM symbiote/php-fpm:7.1-alpine
 
-RUN apt-get update && apt-get install -y git
+RUN apk add --no-cache \
+    git \
+    openssh \
+    yarn
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME "/usr/local/composer"
@@ -8,12 +11,14 @@ ENV COMPOSER_VERSION 1.8.0
 ENV PATH "${COMPOSER_HOME}/vendor/bin:${PATH}"
 
 RUN mkdir -p $COMPOSER_HOME \
-	&& php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-  && php -r "if (hash_file('sha384', 'composer-setup.php') === 'e0012edf3e80b6978849f5eff0d4b4e4c79ff1609dd1e613307e16318854d24ae64f26d17af3ef0bf7cfb710ca74755a') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \ 
+  && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+  #&& php -r "if (hash_file('sha384', 'composer-setup.php') === '93b54496392c062774670ac18b134c3b3a95e5a5e5c8f1a9f115f203b75bf9a129d5daa8ba6a13e2cc8a1da0806388a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
   && php composer-setup.php --install-dir /usr/bin --filename=composer \
-  && php -r "unlink('composer-setup.php');"
-
-RUN composer global require phing/phing && chown -R www-data ${COMPOSER_HOME}
+  && php -r "unlink('composer-setup.php');" \
+  #&& composer global require phing/phing && chown -R www-data ${COMPOSER_HOME}
+  && curl -sLO https://www.phing.info/get/phing-2.16.3.phar \
+  && chmod +x phing-2.16.3.phar \
+  && mv phing-2.16.3.phar /usr/local/bin/phing
 
 COPY sspak.phar /usr/local/bin/sspak
 
