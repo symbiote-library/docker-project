@@ -1,5 +1,7 @@
 # Symbiote PHP project docker
 
+** This project has been deprecated and is replaced by individual docker projects for containers **
+
 A collection of docker containers used by a single web project. Tailored to suit SilverStripe applications, but usable by other PHP apps.
 
 ## Running
