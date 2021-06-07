@@ -29,3 +29,9 @@ RUN mkdir -p /var/www/.ssh && \
     chmod 600 /var/www/.ssh/known_hosts
 
 CMD ["/bin/bash"]
+
+# enable libraries for mongodb
+RUN apt-get install -y libcurl4-openssl-dev pkg-config libssl-dev \
+    && pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    && pecl config-set php_ini /etc/php.ini

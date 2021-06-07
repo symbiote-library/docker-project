@@ -59,3 +59,9 @@ RUN echo '[Date]\ndate.timezone = "Australia/Melbourne"' >> /usr/local/etc/php/c
 
 COPY php.ini /usr/local/etc/php/php.ini
 COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+
+# enable libraries for mongodb
+RUN apt-get install -y libcurl4-openssl-dev pkg-config libssl-dev \
+    && pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    && pecl config-set php_ini /etc/php.ini

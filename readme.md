@@ -82,6 +82,8 @@ The following can be included as needed in the `./du.sh` script.
 * __solr__: A solr 5.5 instance - TODO adding custom solr.xml and creating new cores.
 * __selenium__: remaps requests to symlocal back to the webserver container.
 * __mailhog__: mail capture, web interface. Available on `localhost:8025`.
+* __mongo__: MongoDB image (This is dcocker official image - https://hub.docker.com/_/mongo)
+* __mongo-express__: web based interface for mongoDB. Available on `localhost:8081`. (This is docker official image - https://hub.docker.com/_/mongo-express)
 
 Note for those containers below that have different versions, simply change the docker-compose file
 to reference the older version where needed.
